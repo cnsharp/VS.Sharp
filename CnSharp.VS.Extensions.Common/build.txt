@@ -1,0 +1,5 @@
+﻿if not $(ConfigurationName) == Release
+goto end
+copy  "$(TargetName).dll" ".\..\..\..\VsSharp.Nuget\lib\net35\" /y
+copy  "$(TargetName).xml" ".\..\..\..\VsSharp.Nuget\lib\net35\" /y
+:end
