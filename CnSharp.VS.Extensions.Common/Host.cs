@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Resources;
 using CnSharp.VisualStudio.Extensions.Commands;
+using CnSharp.VisualStudio.Extensions.SourceControl;
 using EnvDTE;
 using EnvDTE80;
 
@@ -69,7 +70,7 @@ namespace CnSharp.VisualStudio.Extensions
 
         void SolutionEvents_AfterClosing()
         {
-
+            this.SourceControl = null;
             foreach (var plugin in Plugins)
             {
                 plugin.CommandManager.ApplyDependencies(DependentItems.SolutionProject, false);
@@ -78,6 +79,7 @@ namespace CnSharp.VisualStudio.Extensions
 
         void SolutionEvents_Opened()
         {
+            this.SourceControl = SourceControlManager.GetSolutionSourceControl(this.DTE.Solution);
             foreach (var plugin in Plugins)
             {
                 plugin.CommandManager.ApplyDependencies(DependentItems.SolutionProject, true);
@@ -106,6 +108,8 @@ namespace CnSharp.VisualStudio.Extensions
         }
 
         public AddIn AddIn { get; set; }
+
+        public ISourceControl SourceControl { get; set; }
 
         //public ResourceManager ResourceManager { get; set; }
         public static List<Plugin> Plugins { get; set; }

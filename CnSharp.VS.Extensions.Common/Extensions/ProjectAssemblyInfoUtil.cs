@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using CnSharp.VisualStudio.Extensions.Projects;
@@ -13,19 +14,24 @@ namespace CnSharp.VisualStudio.Extensions
             string assemblyInfo = GetAssemblyInfo(project);
             if (string.IsNullOrEmpty(assemblyInfo))
                 throw new FileNotFoundException("Assembly info file of project '" + project.FullName + "' missed.");
+            assemblyInfo = Regex.Replace(assemblyInfo, "//.*", "");
             string fileVersion =
-                Regex.Match(assemblyInfo, @"AssemblyFileVersion\(""(?<content>.+)""\)").Groups["content"].Value;
-            string version = Regex.Match(assemblyInfo, @"AssemblyVersion\(""(?<content>.+)""\)").Groups["content"].Value;
+                Regex.Match(assemblyInfo, @"[^/]\[assembly:\s*AssemblyFileVersion\(""(?<content>.+)""\)").Groups["content"].Value;
+            string version = Regex.Match(assemblyInfo, @"[^/]\[assembly:\s*AssemblyVersion\(""(?<content>.+)""\)").Groups["content"].Value;
             string productName =
-                Regex.Match(assemblyInfo, @"AssemblyProduct\(""(?<content>.+)""\)").Groups["content"].Value;
+                Regex.Match(assemblyInfo, @"[^/]\[assembly:\s*AssemblyProduct\(""(?<content>.+)""\)").Groups["content"].Value;
             string companyName =
-                Regex.Match(assemblyInfo, @"AssemblyCompany\(""(?<content>.+)""\)").Groups["content"].Value;
+                Regex.Match(assemblyInfo, @"[^/]\[assembly:\s*AssemblyCompany\(""(?<content>.+)""\)").Groups["content"].Value;
             string title =
-               Regex.Match(assemblyInfo, @"AssemblyTitle\(""(?<content>.+)""\)").Groups["content"].Value;
+               Regex.Match(assemblyInfo, @"[^/]\[assembly:\s*AssemblyTitle\(""(?<content>.+)""\)").Groups["content"].Value;
             string description =
-              Regex.Match(assemblyInfo, @"AssemblyDescription\(""(?<content>.+)""\)").Groups["content"].Value;
+              Regex.Match(assemblyInfo, @"[^/]\[assembly:\s*AssemblyDescription\(""(?<content>.+)""\)").Groups["content"].Value;
             string copyright =
-             Regex.Match(assemblyInfo, @"AssemblyCopyright\(""(?<content>.+)""\)").Groups["content"].Value;
+             Regex.Match(assemblyInfo, @"[^/]\[assembly:\s*AssemblyCopyright\(""(?<content>.+)""\)").Groups["content"].Value;
+#if DEBUG
+            if (version.Contains("*"))
+                version = fileVersion;
+#endif
             return new ProjectAssemblyInfo
             {
                 Project = project,
@@ -44,24 +50,34 @@ namespace CnSharp.VisualStudio.Extensions
             var file = project.GetAssemblyInfoFileName();
 
             var assemblyText = project.GetAssemblyInfo();
-           
-            using (var sw = new StreamWriter(file,false, Encoding.Default))
+
+            var sc = Host.Instance.SourceControl;
+            if (sc != null)
             {
-              
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyFileVersion\("".+""\)",
-                              string.Format("AssemblyFileVersion(\"{0}\")", assemblyInfo.FileVersion));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyVersion\("".+""\)",
-                              string.Format("AssemblyVersion(\"{0}\")", assemblyInfo.Version));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyProduct\("".+""\)",
-                              string.Format("AssemblyProduct(\"{0}\")", assemblyInfo.ProductName));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyCompany\("".+""\)",
-                              string.Format("AssemblyCompany(\"{0}\")", assemblyInfo.Company));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyTitle\("".+""\)",
-                              string.Format("AssemblyTitle(\"{0}\")", assemblyInfo.Title));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyDescription\("".+""\)",
-                              string.Format("AssemblyDescription(\"{0}\")", assemblyInfo.Description));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyCopyright\("".+""\)",
-                             string.Format("AssemblyCopyright(\"{0}\")", assemblyInfo.Copyright));
+               var ok =  sc.CheckOut(Path.GetDirectoryName(Host.Instance.DTE.Solution.FullName), file);
+                if (ok < 0)
+                {
+                    throw new ApplicationException(string.Format("Check out file {0} failed,you may connect source control server at first.",file));
+                }
+            }
+
+            using (var sw = new StreamWriter(file,false, Encoding.UTF8))
+            {
+               
+                assemblyText = Regex.Replace(assemblyText, @"[^/]\[assembly:\s*AssemblyFileVersion\("".+""\)",
+                              string.Format("\n[assembly: AssemblyFileVersion(\"{0}\")", assemblyInfo.FileVersion));
+                assemblyText = Regex.Replace(assemblyText, @"\n\[assembly:\s*AssemblyVersion\("".+""\)",
+                              string.Format("\n[assembly: AssemblyVersion(\"{0}\")", assemblyInfo.Version));
+                assemblyText = Regex.Replace(assemblyText, @"[^/]\[assembly:\s*AssemblyProduct\("".+""\)",
+                              string.Format("\n[assembly: AssemblyProduct(\"{0}\")", assemblyInfo.ProductName));
+                assemblyText = Regex.Replace(assemblyText, @"[^/]\[assembly:\s*AssemblyCompany\("".*""\)",
+                              string.Format("\n[assembly: AssemblyCompany(\"{0}\")", assemblyInfo.Company));
+                assemblyText = Regex.Replace(assemblyText, @"[^/]\[assembly:\s*AssemblyTitle\("".+""\)",
+                              string.Format("\n[assembly: AssemblyTitle(\"{0}\")", assemblyInfo.Title));
+                assemblyText = Regex.Replace(assemblyText, @"[^/]\[assembly:\s*AssemblyDescription\("".+""\)",
+                              string.Format("\n[assembly: AssemblyDescription(\"{0}\")", assemblyInfo.Description));
+                assemblyText = Regex.Replace(assemblyText, @"[^/]\[assembly:\s*AssemblyCopyright\("".+""\)",
+                             string.Format("\n[assembly: AssemblyCopyright(\"{0}\")", assemblyInfo.Copyright));
                 sw.Write(assemblyText);
             }
         }
