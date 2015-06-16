@@ -86,6 +86,7 @@
     <Compile Include="Host.cs" />
     <Compile Include="IDocumentAccessor.cs" />
     <Compile Include="IWindowAccessor.cs" />
+    <Compile Include="Plugin.cs" />
     <Compile Include="Projects\ProjectAssemblyInfo.cs" />
     <Compile Include="Resources\ImageConverter.cs">
       <SubType>Component</SubType>
