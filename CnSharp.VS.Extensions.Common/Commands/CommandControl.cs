@@ -10,6 +10,9 @@ using stdole;
 
 namespace CnSharp.VisualStudio.Extensions.Commands
 {
+    /// <summary>
+    /// Add-in control of command
+    /// </summary>
     [XmlInclude(typeof(CommandMenu))]
     [XmlInclude(typeof(CommandButton))]
     public abstract class CommandControl
@@ -20,27 +23,45 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         private string _arg;
         private ICommand _command;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         protected CommandControl()
         {
             CommandActionType = CommandActionType.Menu;
             Position = 1;
         }
 
+        /// <summary>
+        /// Id,as while as the command Name
+        /// </summary>
         [XmlAttribute("id")]
         public string Id { get; set; }
 
+        /// <summary>
+        /// Text
+        /// </summary>
         [XmlAttribute("text")]
         public string Text { get; set; }
 
+        /// <summary>
+        /// Tooltip text
+        /// </summary>
         [XmlAttribute("tooltip")]
         public string Tooltip { get; set; }
 
+        /// <summary>
+        /// Office style icon face id
+        /// </summary>
         [XmlAttribute("faceId")]
         public int FaceId { get; set; }
 
         /// <summary>
-        ///     控件在父控件上的相对位置，相对于控件总数n而言，大于等于0则放在末尾n+1的位置，为负数则放在倒数第n-Position的位置
+        ///   Relative position in the parent control,can be minus
         /// </summary>
+        /// <remarks>
+        /// 相对于父控件Child总数n而言，大于等于0则放在末尾n+1的位置，为负数则放在倒数第n-Position的位置
+        /// </remarks>
         [XmlAttribute("position")]
         public int Position
         {
@@ -53,6 +74,9 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             }
         }
 
+        /// <summary>
+        /// Picture id in ResourceManager
+        /// </summary>
         [XmlAttribute("picture")]
         public string Picture { get; set; }
 
@@ -69,6 +93,9 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             }
         }
 
+        /// <summary>
+        /// Image instance from ResourceManager
+        /// </summary>
         [XmlIgnore]
         public Image Image
         {
@@ -87,22 +114,36 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         }
 
 
-
+        /// <summary>
+        /// Action class type name
+        /// </summary>
         [XmlAttribute("class")]
         public string ClassName { get; set; }
 
+        /// <summary>
+        /// Action type
+        /// </summary>
         [XmlAttribute("type")]
         public CommandActionType CommandActionType { get; set; }
 
+        /// <summary>
+        /// Parent control name that the control attach to
+        /// </summary>
         [XmlAttribute("attachTo")]
         public string AttachTo { get; set; }
 
         //[XmlAttribute("hotKey")]
         //public string HotKey { get; set; }
 
+        /// <summary>
+        /// begin group,insert a bar in context menu if set True
+        /// </summary>
         [XmlAttribute("beginGroup")]
         public bool BeginGroup { get; set; }
 
+        /// <summary>
+        /// Command instance of <see cref="ClassName"/>
+        /// </summary>
         [XmlIgnore]
         public ICommand Command
         {
@@ -110,10 +151,16 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             set { _command = value; }
         }
 
+        /// <summary>
+        /// <see cref="Plugin"/> which the control attach to
+        /// </summary>
         [XmlIgnore]
         public Plugin Plugin { get; set; }
 
 
+        /// <summary>
+        /// Argument for <see cref="ICommand"/> execution
+        /// </summary>
         [XmlAttribute("arg")]
         public string Arg
         {
@@ -126,7 +173,9 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             }
         }
 
-
+        /// <summary>
+        /// <see cref="DependentItems"/> name for making the control  enabled or disabled
+        /// </summary>
         [XmlAttribute("dependOn")]
         public string DependOn { get; set; }
 
@@ -139,6 +188,9 @@ namespace CnSharp.VisualStudio.Extensions.Commands
                       : (DependentItems)Enum.Parse(typeof(DependentItems), DependOn);
               } }
 
+        /// <summary>
+          /// Argument for <see cref="ICommand"/> execution,only be assgined by programming
+        /// </summary>
         [XmlIgnore]
         public object Tag { get; set; }
 
@@ -147,6 +199,9 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             return Text;
         }
 
+        /// <summary>
+        /// execute action
+        /// </summary>
         public virtual void Execute()
         {
             var arg = Arg ?? Tag;
@@ -169,7 +224,11 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             }
         }
 
-
+        /// <summary>
+        /// load an instance
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <returns></returns>
         public object LoadInstance(string typeName)
         {
             if (typeName.Contains(","))
