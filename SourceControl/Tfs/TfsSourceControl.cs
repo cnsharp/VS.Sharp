@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using CnSharp.VisualStudio.Extensions.SourceControl;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.VersionControl.Client;
@@ -12,27 +14,35 @@ namespace CnSharp.VisualStudio.SourceControl.Tfs
     {
         private static readonly Hashtable Table = Hashtable.Synchronized(new Hashtable());
 
-        public int CheckOut(string slnDir,string file)
+        public int CheckOut(string projectDir,string file)
         {
-            var workspace = GetWorkspace(slnDir);
+            var workspace = GetWorkspace(projectDir);
             if(workspace == null)
                 return -1;
             return workspace.PendEdit(file);
         }
 
-        public static Workspace GetWorkspace(string slnDir)
+        public IEnumerable<string> GetPendingFiles(string projectDir)
         {
-            if (Table.Contains(slnDir))
+            var workspace = GetWorkspace(projectDir);
+            if (workspace == null)
+                return null;
+            return workspace.GetPendingChangesEnumerable().Select(m => m.FileName);
+        } 
+
+        public static Workspace GetWorkspace(string projectDir)
+        {
+            if (Table.Contains(projectDir))
             {
-                return Table[slnDir] as Workspace;
+                return Table[projectDir] as Workspace;
             }
             var projectCollections = new List<RegisteredProjectCollection>((RegisteredTfsConnections.GetProjectCollections()));
-            var onlineCollections = projectCollections.Where(c => c.Offline).ToList();
+            var onlineCollections = projectCollections.Where(c => !c.Offline).ToList();
 
             // fail if there are no registered collections that are currently on-line
             if (!onlineCollections.Any())
             {
-                Table.Add(slnDir,null);
+                Table.Add(projectDir,null);
                 return null;
             }
             Workspace workspace = null;
@@ -49,25 +59,33 @@ namespace CnSharp.VisualStudio.SourceControl.Tfs
                 // if there are no team projects in this collection, skip it
                 if (teamProjects.Count < 1) continue;
 
-
-                Workspace[] workspaces = versionControl.QueryWorkspaces(null, Environment.UserName, Environment.MachineName);
-             
-                foreach (var ws in workspaces)
+         
+                try
                 {
-                    foreach (var folder in ws.Folders)
+                    Workspace[] workspaces = versionControl.QueryWorkspaces(null, Environment.UserName,
+                        Environment.MachineName);
+                    foreach (var ws in workspaces)
                     {
-                        if (slnDir.StartsWith(folder.LocalItem))
+                        foreach (var folder in ws.Folders)
                         {
-                            workspace = ws;
-                            break;
+                            if (projectDir.StartsWith(folder.LocalItem))
+                            {
+                                workspace = ws;
+                                break;
+                            }
                         }
+                        if (workspace != null && workspace.HasUsePermission)
+                            break;
                     }
-                    if (workspace != null && workspace.HasUsePermission)
-                        break;
                 }
-             
+                catch
+                {
+                    continue;
+                }
+              
 
-                //var dir = new DirectoryInfo(slnDir);
+       #region another implementation
+                //var dir = new DirectoryInfo(projectDir);
                 //while (workspace == null)
                 //{
                 //    workspace = versionControl.TryGetWorkspace(dir.FullName);
@@ -75,11 +93,11 @@ namespace CnSharp.VisualStudio.SourceControl.Tfs
                 //        break;
                 //    dir = dir.Parent;
                 //}
-
+       #endregion
                 if (workspace != null && workspace.HasUsePermission)
                     break;
             }
-            Table.Add(slnDir, workspace);
+            Table.Add(projectDir, workspace);
             return workspace;
         }
     }

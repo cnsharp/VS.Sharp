@@ -7,64 +7,61 @@ namespace CnSharp.VisualStudio.Extensions
 {
     public static class DteExtensions
     {
-        public static Project GetStartupProject(this DTE2 dte)
+        public static Project GetActiveProejct(this _DTE dte)
         {
-            var projects = (Array)dte.Solution.SolutionBuild.StartupProjects;
-            if (projects != null && projects.Length >= 1)
+            Array activeSolutionProjects = (Array)dte.ActiveSolutionProjects;
+            if ((activeSolutionProjects != null) && (activeSolutionProjects.Length >= 1))
             {
-                return projects.GetValue(0) as Project;
+                return (activeSolutionProjects.GetValue(0) as Project);
             }
             return null;
         }
 
-        public static IEnumerable<Project> GetSolutionProjects(this DTE2 dte)
+        public static IEnumerable<Project> GetSolutionProjects(this _DTE dte)
         {
-            var projects = new List<Project>();
-            var prjs =  dte.Solution.Projects;
-            foreach (var project in prjs)
+            List<Project> list = new List<Project>();
+            foreach (object obj2 in dte.Solution.Projects)
             {
-                var p = project as Project;
-                projects.AddRange(GetValidProjects(p));
+                Project project = obj2 as Project;
+                list.AddRange(project.GetValidProjects());
             }
-            return projects;
+            return list;
         }
 
-        static IEnumerable<Project> GetValidProjects(this Project project)
+        public static Project GetStartupProject(this _DTE dte)
         {
-            var projects = new List<Project>();
-         
-            var fileName = string.Empty;
+            Array startupProjects = (Array)dte.Solution.SolutionBuild.StartupProjects;
+            if ((startupProjects != null) && (startupProjects.Length >= 1))
+            {
+                return (startupProjects.GetValue(0) as Project);
+            }
+            return null;
+        }
+
+        private static IEnumerable<Project> GetValidProjects(this Project project)
+        {
+            List<Project> list = new List<Project>();
+            string fileName = string.Empty;
             try
             {
-                fileName = project.FileName; //some kind of projects get FileName throw a exception
+                fileName = project.FileName;
             }
             catch
             {
-
             }
-
-            if (project != null && !string.IsNullOrEmpty(fileName))
-              projects.Add(project);
-            if (project != null && project.ProjectItems != null)
+            if ((project != null) && !string.IsNullOrEmpty(fileName))
             {
-                foreach (var pi in project.ProjectItems)
+                list.Add(project);
+            }
+            if ((project != null) && (project.ProjectItems != null))
+            {
+                foreach (object obj2 in project.ProjectItems)
                 {
-                    var p = pi as ProjectItem;
-                    projects.AddRange(GetValidProjects(p.SubProject));
+                    ProjectItem item = obj2 as ProjectItem;
+                    list.AddRange(item.SubProject.GetValidProjects());
                 }
             }
-
-            return projects;
-        }
-
-        public static Project GetActiveProejct(this DTE2 dte)
-        {
-            var projects = (Array)dte.ActiveSolutionProjects;
-            if (projects != null && projects.Length >= 1)
-            {
-                return projects.GetValue(0) as Project;
-            }
-            return null;
+            return list;
         }
 
 

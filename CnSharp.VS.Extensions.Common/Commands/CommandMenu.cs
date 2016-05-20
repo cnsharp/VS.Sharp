@@ -31,7 +31,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         [XmlAttribute("sgt")]
         public string SubGeneratorType { get; set; }
 
-        public virtual IEnumerable<CommandMenu> GenerateSubMenus()
+        protected virtual IEnumerable<CommandMenu> GenerateSubMenus()
         {
             if (string.IsNullOrEmpty(SubGeneratorType) || SubGeneratorType.Trim().Length == 0)
                 return null;

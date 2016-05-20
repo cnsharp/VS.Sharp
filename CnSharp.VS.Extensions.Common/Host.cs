@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Resources;
 using CnSharp.VisualStudio.Extensions.Commands;
 using CnSharp.VisualStudio.Extensions.SourceControl;
 using EnvDTE;
@@ -111,6 +109,8 @@ namespace CnSharp.VisualStudio.Extensions
 
         public AddIn AddIn { get; set; }
 
+        public ISourceControl SourceControl { get; set; }
+
         //public ResourceManager ResourceManager { get; set; }
         public static List<Plugin> Plugins { get; set; }
 
@@ -139,19 +139,6 @@ namespace CnSharp.VisualStudio.Extensions
             return true;
         }
 
-    }
-
-    public class Plugin
-    {
-        public Assembly Assembly { get; set; }
-
-        public string Location { get; set; }
-
-        public CommandConfig CommandConfig { get; set; }
-
-        public CommandManager CommandManager { get; set; }
-
-        public ResourceManager ResourceManager { get; set; }
     }
 
     public static class EnumExt
