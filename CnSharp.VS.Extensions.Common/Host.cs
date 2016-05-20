@@ -10,15 +10,21 @@ namespace CnSharp.VisualStudio.Extensions
     public class Host
     {
         private static Host _host;
+        private bool _closingLast;
+        private DocumentEvents _documentEvents;
 
-        public static Host Instance
-        {
-            get { return _host ?? (_host = new Host()); }
-        }
+        private _DTE _dte;
+        private DTEEvents _dteEvents;
+        private SolutionEvents _solutionEvents;
 
         static Host()
         {
             Plugins = new List<Plugin>();
+        }
+
+        public static Host Instance
+        {
+            get { return _host ?? (_host = new Host()); }
         }
 
         //public Assembly Assembly { get; set; }
@@ -29,11 +35,6 @@ namespace CnSharp.VisualStudio.Extensions
 
         public string Version { get; set; }
 
-        private _DTE _dte;
-        private DocumentEvents _documentEvents;
-        private SolutionEvents _solutionEvents;
-        private DTEEvents _dteEvents;
-        private bool _closingLast;
         public _DTE DTE
         {
             get { return _dte; }
@@ -56,11 +57,6 @@ namespace CnSharp.VisualStudio.Extensions
             }
         }
 
-        void _dteEvents_OnBeginShutdown()
-        {
-           
-        }
-
         public DTE2 Dte2
         {
             get { return (DTE2) DTE; }
@@ -68,25 +64,35 @@ namespace CnSharp.VisualStudio.Extensions
 
         public ISourceControl SourceControl { get; set; }
 
-        void SolutionEvents_AfterClosing()
+        public AddIn AddIn { get; set; }
+
+
+        //public ResourceManager ResourceManager { get; set; }
+        public static List<Plugin> Plugins { get; set; }
+
+        private void _dteEvents_OnBeginShutdown()
         {
-            this.SourceControl = null;
+        }
+
+        private void SolutionEvents_AfterClosing()
+        {
+            SourceControl = null;
             foreach (var plugin in Plugins)
             {
                 plugin.CommandManager.ApplyDependencies(DependentItems.SolutionProject, false);
             }
         }
 
-        void SolutionEvents_Opened()
+        private void SolutionEvents_Opened()
         {
-            this.SourceControl = SourceControlManager.GetSolutionSourceControl(this.DTE.Solution);
+            SourceControl = SourceControlManager.GetSolutionSourceControl(DTE.Solution);
             foreach (var plugin in Plugins)
             {
                 plugin.CommandManager.ApplyDependencies(DependentItems.SolutionProject, true);
             }
         }
 
-        void DocumentEvents_DocumentClosing(Document document)
+        private void DocumentEvents_DocumentClosing(Document document)
         {
             if (_dte.Documents.Count == 1) //the last one
             {
@@ -99,7 +105,7 @@ namespace CnSharp.VisualStudio.Extensions
             }
         }
 
-        void DocumentEvents_DocumentOpened(Document document)
+        private void DocumentEvents_DocumentOpened(Document document)
         {
             foreach (var plugin in Plugins)
             {
@@ -107,44 +113,36 @@ namespace CnSharp.VisualStudio.Extensions
             }
         }
 
-        public AddIn AddIn { get; set; }
-
-        public ISourceControl SourceControl { get; set; }
-
-        //public ResourceManager ResourceManager { get; set; }
-        public static List<Plugin> Plugins { get; set; }
-
         public bool IsDependencySatisfied(DependentItems dependentItems)
         {
             var dependencies = dependentItems.ToString()
-                .Split(new string[] {" ,"}, StringSplitOptions.RemoveEmptyEntries);
+                .Split(new[] {" ,"}, StringSplitOptions.RemoveEmptyEntries);
             foreach (var dependency in dependencies)
             {
                 var item = (DependentItems) Enum.Parse(typeof (DependentItems), dependency);
                 if (!CheckDependency(item))
-                    return false; 
+                    return false;
             }
             return true;
         }
 
-        private  bool CheckDependency(DependentItems dependentItems)
+        private bool CheckDependency(DependentItems dependentItems)
         {
             switch (dependentItems)
             {
-                    case DependentItems.Document:
+                case DependentItems.Document:
                     return _dte.Documents.Count > 0 && !_closingLast;
                 case DependentItems.SolutionProject:
                     return _dte.Solution != null && _dte.Solution.Projects.Count > 0;
             }
             return true;
         }
-
     }
 
     public static class EnumExt
     {
         /// <summary>
-        /// Check to see if a flags enumeration has a specific flag set.
+        ///     Check to see if a flags enumeration has a specific flag set.
         /// </summary>
         /// <param name="variable">Flags enumeration to check</param>
         /// <param name="value">Flag to check for</param>
@@ -165,10 +163,8 @@ namespace CnSharp.VisualStudio.Extensions
                     value.GetType(), variable.GetType()));
             }
 
-            ulong num = Convert.ToUInt64(value);
+            var num = Convert.ToUInt64(value);
             return ((Convert.ToUInt64(variable) & num) == num);
-
         }
-
     }
 }

@@ -8,6 +8,8 @@ namespace CnSharp.VisualStudio.Extensions
 {
     public class Plugin
     {
+        public Guid Id { get; set; }
+        
         private Assembly _assembly;
 
         public Assembly Assembly
@@ -20,7 +22,7 @@ namespace CnSharp.VisualStudio.Extensions
             }
         }
 
-        public string Location { get; private set; }
+        public string Location { get; set; }
 
         public CommandConfig CommandConfig { get; set; }
 

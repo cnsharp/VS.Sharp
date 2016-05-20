@@ -195,7 +195,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         public object Tag { get; set; }
 
         [XmlIgnore]
-        public Action ClickEvent { get; set; }
+        public Action Action { get; set; }
 
         public override string ToString()
         {

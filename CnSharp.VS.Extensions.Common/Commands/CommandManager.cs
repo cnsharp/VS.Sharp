@@ -13,6 +13,11 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         public CommandManager(Plugin plugin)
         {
+            if (Host.Plugins.Any(m => m.Id == plugin.Id))
+            {
+                throw new InvalidOperationException($"plugin {plugin.Id} already exists.");
+            }
+
             _config = plugin.CommandConfig;
             _plugin = plugin;
             plugin.CommandManager = this;
