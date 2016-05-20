@@ -142,6 +142,9 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         [XmlIgnore]
         public object Tag { get; set; }
 
+        [XmlIgnore]
+        public Action ClickEvent { get; set; }
+
         public override string ToString()
         {
             return Text;
@@ -153,10 +156,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             switch (CommandActionType)
             {
                 case CommandActionType.Program:
-                    if (Command != null)
-                    {
-                        Command.Execute(arg);
-                    }
+                    Command?.Execute(arg);
                     break;
                 case CommandActionType.Window:
                     var window = GetForm();

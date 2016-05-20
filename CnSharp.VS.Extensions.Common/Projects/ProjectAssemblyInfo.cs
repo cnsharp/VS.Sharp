@@ -41,5 +41,19 @@ namespace CnSharp.VisualStudio.Extensions.Projects
                 return -1;
             return 0;
         }
+
+        public ProjectAssemblyInfo Copy()
+        {
+            return new ProjectAssemblyInfo
+            {
+                Project = Project,
+                Company = Company,
+                Copyright = Copyright,
+                FileVersion = FileVersion,
+                ProductName = ProjectName,
+                Title = Title,
+                Version = Version
+            };
+        }
     }
 }

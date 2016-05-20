@@ -16,17 +16,30 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         private readonly ICommandBarAccessor _commandBarAccessor;
 
-        public CommandManager(CommandConfig commandConfig,Plugin plugin)
+        //public CommandManager(CommandConfig commandConfig,Plugin plugin)
+        //{
+
+        //    _config = commandConfig;
+        //    _plugin = plugin;
+
+        //    plugin.CommandConfig = commandConfig;
+
+        //    _commandBarAccessor = new CommandBarAccessor();
+
+        //    Host.Plugins.Add(plugin);
+        //    //_commandBarAccessor.Plugin = plugin;
+            
+        //}
+
+        public CommandManager(Plugin plugin) 
         {
-
-            _config = commandConfig;
+            _config = plugin.CommandConfig;
             _plugin = plugin;
-
+            plugin.CommandManager = this;
 
             _commandBarAccessor = new CommandBarAccessor();
 
             Host.Plugins.Add(plugin);
-            //_commandBarAccessor.Plugin = plugin;
         }
 
         //public static AddIn AddIn { set; get; }

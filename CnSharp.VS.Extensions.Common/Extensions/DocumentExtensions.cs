@@ -1,4 +1,7 @@
-﻿using EnvDTE;
+﻿using System;
+using System.IO;
+using EnvDTE;
+using Microsoft.VisualStudio;
 
 namespace CnSharp.VisualStudio.Extensions
 {
@@ -7,7 +10,7 @@ namespace CnSharp.VisualStudio.Extensions
         public static string GetSelectionText(this Document doc)
         {
             var ts = (TextSelection)doc.Selection;
-            return (ts == null) ? null : ts.Text;
+            return ts?.Text;
         }
 
         public static string GetText(this Document doc)
@@ -60,5 +63,31 @@ namespace CnSharp.VisualStudio.Extensions
             startPoint.Delete(document.EndPoint);
             document.Selection.Insert(text);
         }
+
+        ///// <summary>
+        ///// open a new Document Window
+        ///// </summary>
+        ///// <param name="serviceProvider"></param>
+        ///// <param name="filePath"></param>
+        ///// <returns></returns>
+        //public static IVsWindowFrame OpenDocumentInNewWindow(this IServiceProvider serviceProvider, string filePath)
+        //{
+        //    if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+        //        return null;
+
+        //    IVsUIHierarchy hierarchy;
+        //    uint itemId;
+        //    IVsWindowFrame frame = null;
+        //    if (!VsShellUtilities.IsDocumentOpen(serviceProvider, filePath,
+        //            VSConstants.LOGVIEWID_Primary, out hierarchy, out itemId, out frame))
+        //    {
+        //        VsShellUtilities.OpenDocument(serviceProvider, filePath,
+        //            VSConstants.LOGVIEWID_Primary, out hierarchy, out itemId, out frame);
+        //    }
+
+        //    frame?.Show();
+
+        //    return frame;
+        //}
     }
 }

@@ -19,23 +19,42 @@ namespace CnSharp.VisualStudio.Extensions
 
         public static IEnumerable<Project> GetSolutionProjects(this DTE2 dte)
         {
-            var projects =  dte.Solution.Projects;
-            foreach (var project in projects)
+            var projects = new List<Project>();
+            var prjs =  dte.Solution.Projects;
+            foreach (var project in prjs)
             {
                 var p = project as Project;
-                var fileName = string.Empty;
-                try
-                {
-                    fileName = p.FileName; //some kind of projects get FileName throw a exception
-                }
-                catch
-                {
-                    
-                }
-               
-                if (p != null && !string.IsNullOrEmpty(fileName))
-                    yield return p;
+                projects.AddRange(GetValidProjects(p));
             }
+            return projects;
+        }
+
+        static IEnumerable<Project> GetValidProjects(this Project project)
+        {
+            var projects = new List<Project>();
+         
+            var fileName = string.Empty;
+            try
+            {
+                fileName = project.FileName; //some kind of projects get FileName throw a exception
+            }
+            catch
+            {
+
+            }
+
+            if (project != null && !string.IsNullOrEmpty(fileName))
+              projects.Add(project);
+            if (project != null && project.ProjectItems != null)
+            {
+                foreach (var pi in project.ProjectItems)
+                {
+                    var p = pi as ProjectItem;
+                    projects.AddRange(GetValidProjects(p.SubProject));
+                }
+            }
+
+            return projects;
         }
 
         public static Project GetActiveProejct(this DTE2 dte)
@@ -69,5 +88,7 @@ namespace CnSharp.VisualStudio.Extensions
             outputPane.OutputString(message);
             outputPane.Activate();
         }
+
+       
     }
 }

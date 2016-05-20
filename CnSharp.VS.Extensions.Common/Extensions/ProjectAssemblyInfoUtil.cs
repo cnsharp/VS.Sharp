@@ -12,20 +12,16 @@ namespace CnSharp.VisualStudio.Extensions
         {
             string assemblyInfo = GetAssemblyInfo(project);
             if (string.IsNullOrEmpty(assemblyInfo))
-                throw new FileNotFoundException("Assembly info file of project '" + project.FullName + "' missed.");
-            string fileVersion =
-                Regex.Match(assemblyInfo, @"AssemblyFileVersion\(""(?<content>.+)""\)").Groups["content"].Value;
-            string version = Regex.Match(assemblyInfo, @"AssemblyVersion\(""(?<content>.+)""\)").Groups["content"].Value;
-            string productName =
-                Regex.Match(assemblyInfo, @"AssemblyProduct\(""(?<content>.+)""\)").Groups["content"].Value;
-            string companyName =
-                Regex.Match(assemblyInfo, @"AssemblyCompany\(""(?<content>.+)""\)").Groups["content"].Value;
-            string title =
-               Regex.Match(assemblyInfo, @"AssemblyTitle\(""(?<content>.+)""\)").Groups["content"].Value;
-            string description =
-              Regex.Match(assemblyInfo, @"AssemblyDescription\(""(?<content>.+)""\)").Groups["content"].Value;
-            string copyright =
-             Regex.Match(assemblyInfo, @"AssemblyCopyright\(""(?<content>.+)""\)").Groups["content"].Value;
+                throw new FileNotFoundException("Assembly info file 'AssemblyInfo.cs' not found in this project.");
+            assemblyInfo = Regex.Replace(assemblyInfo, "//.*", "");
+            string fileVersion = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyFileVersion");
+             
+            string version = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyVersion"); 
+            string productName = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyProduct");
+            string companyName = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyCompany");
+            string title = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyTitle");
+            string description = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyDescription");
+            string copyright = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyCopyright");
             return new ProjectAssemblyInfo
             {
                 Project = project,
@@ -39,31 +35,39 @@ namespace CnSharp.VisualStudio.Extensions
             };
         }
 
+        private static string GetAssemblyAnnotationValue(string assemblyInfo, string attributeName)
+        {
+            return
+                Regex.Match(assemblyInfo, $"[^/]\\[assembly:\\s*?{attributeName}\\(\"(?<content>.+)\"\\)").Groups["content"].Value;
+        }
+
         public static void ModifyAssemblyInfo(this Project project,ProjectAssemblyInfo assemblyInfo)
         {
             var file = project.GetAssemblyInfoFileName();
 
             var assemblyText = project.GetAssemblyInfo();
-           
-            using (var sw = new StreamWriter(file,false, Encoding.Default))
+
+            var sc = Host.Instance.SourceControl;
+            sc?.CheckOut(Path.GetDirectoryName(Host.Instance.DTE.Solution.FullName), file);
+
+            using (var sw = new StreamWriter(file,false, Encoding.Unicode))
             {
-              
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyFileVersion\("".+""\)",
-                              string.Format("AssemblyFileVersion(\"{0}\")", assemblyInfo.FileVersion));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyVersion\("".+""\)",
-                              string.Format("AssemblyVersion(\"{0}\")", assemblyInfo.Version));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyProduct\("".+""\)",
-                              string.Format("AssemblyProduct(\"{0}\")", assemblyInfo.ProductName));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyCompany\("".+""\)",
-                              string.Format("AssemblyCompany(\"{0}\")", assemblyInfo.Company));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyTitle\("".+""\)",
-                              string.Format("AssemblyTitle(\"{0}\")", assemblyInfo.Title));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyDescription\("".+""\)",
-                              string.Format("AssemblyDescription(\"{0}\")", assemblyInfo.Description));
-                assemblyText = Regex.Replace(assemblyText, @"AssemblyCopyright\("".+""\)",
-                             string.Format("AssemblyCopyright(\"{0}\")", assemblyInfo.Copyright));
+                assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyFileVersion", assemblyInfo.FileVersion);
+                assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyVersion", assemblyInfo.Version);
+                assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyProduct", assemblyInfo.ProductName);
+                assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyCompany", assemblyInfo.Company);
+                assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyTitle", assemblyInfo.Title);
+                assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyDescription", assemblyInfo.Description);
+                assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyCopyright", assemblyInfo.Copyright);
                 sw.Write(assemblyText);
             }
+        }
+
+        private static string ReplaceAssemblyAnnotation(string assemblyText, string attributeName, string value)
+        {
+            var text = Regex.Replace(assemblyText, $"[^/]\\[assembly:\\s*?{attributeName}\\(\".*?\"\\)\\]",
+                $"[assembly: {attributeName}(\"{value}\")]");
+            return text.Replace("\r[", "\r\n[");//这里有个坑
         }
 
         public static string GetAssemblyInfoFileName(this Project project)

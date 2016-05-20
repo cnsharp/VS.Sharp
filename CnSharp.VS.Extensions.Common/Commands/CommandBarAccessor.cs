@@ -114,13 +114,13 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
             var bar = ResetCommandBar(menu, MsoControlType.msoControlButton,  keepPosition);
             var btn = (CommandBarButton) bar;
-         
 
             FormatCommandBarButton(menu, btn);
             _commandBarControls.Add(btn);
 
             return btn;
         }
+
 
         private CommandBarPopup AddCommandBarButtonPop(CommandButton button,bool keepPosition)
         {
@@ -274,6 +274,13 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             btn.Visible = true;
             btn.BeginGroup = control.BeginGroup;
             btn.Tag = control.Id;
+            if (control.ClickEvent != null)
+            {
+                btn.Click += (CommandBarButton ctrl, ref bool @default) =>
+                {
+                    control.ClickEvent.Invoke();
+                };
+            }
         }
     }
 }
