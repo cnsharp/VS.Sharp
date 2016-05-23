@@ -66,9 +66,18 @@ namespace CnSharp.VisualStudio.Extensions
 
         private static string ReplaceAssemblyAnnotation(string assemblyText, string attributeName, string value)
         {
-            var text = Regex.Replace(assemblyText, $"[^/]\\[assembly:\\s*?{attributeName}\\(\".*?\"\\)\\]",
-                $"[assembly: {attributeName}(\"{value}\")]");
-            return text.Replace("\r[", "\r\n[");//这里有个坑
+            //var text = Regex.Replace(assemblyText, $"[^/]\\[assembly:\\s*?{attributeName}\\(\".*?\"\\)\\]",
+            //    $"[assembly: {attributeName}(\"{value}\")]\n");
+            //return text.Replace("\r[", "\r\n[");//这里有个坑
+
+            var text = assemblyText;
+            var m = Regex.Match(text, $"[^/]\\[assembly:\\s*?{attributeName}\\(\".*?\"\\)\\]");
+            if (m.Success)
+            {
+                var newValue = Regex.Replace(m.Value, "\\(\".*?\"\\)",$"(\"{value}\")") ;
+                text = text.Replace(m.Value, newValue);
+            }
+            return text;
         }
 
         public static string GetAssemblyInfoFileName(this Project project)

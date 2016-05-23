@@ -274,8 +274,13 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             btn.Visible = true;
             btn.BeginGroup = control.BeginGroup;
             btn.Tag = control.Id;
-            if(control.Action != null)
-                control.Action.Invoke();
+            if (control.Action != null)
+            {
+                btn.Click += (CommandBarButton ctrl, ref bool @default) =>
+                {
+                    control.Action.Invoke();
+                };
+            }
         }
     }
 }
