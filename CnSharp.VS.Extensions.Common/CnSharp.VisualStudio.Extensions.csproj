@@ -108,6 +108,9 @@
     <Compile Include="WindowInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="package.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="sn.snk" />
   </ItemGroup>

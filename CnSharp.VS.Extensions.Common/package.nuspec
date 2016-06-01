@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>VsSharp</id>
+    <version>1.1.1</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>BugFix:Error occurred when append submenus to CommandBarPopup in VSIX</releaseNotes>
+    <copyright>$copyright$</copyright>
+    <iconUrl>https://secure.gravatar.com/avatar/dff08c1ffd5fe20a93c2a606aa88e0d5?s=32&amp;r=g&amp;d=retro</iconUrl>
+    <projectUrl>http://vssharp.codeplex.com/</projectUrl>
+    <tags>VisualStudio Extensions Add-in VSIX</tags>
+    <dependencies>
+   <group targetFramework="net35">
+      <dependency id="Microsoft.VisualStudio.OLE.Interop" version="7.10.6070" />
+      <dependency id="Microsoft.VisualStudio.Shell.Interop" version="7.10.6071" />
+      <dependency id="Microsoft.VisualStudio.TextManager.Interop" version="7.10.6070" />
+   </group>
+</dependencies>
+  </metadata>
+</package>

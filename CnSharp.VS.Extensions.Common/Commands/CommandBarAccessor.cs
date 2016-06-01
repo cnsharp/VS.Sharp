@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using EnvDTE;
 using Microsoft.VisualStudio.CommandBars;
 using stdole;
@@ -223,15 +224,22 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         private void AddSubMenu(CommandBarPopup parentMenu, CommandMenu menu, Command command = null)
         {
-            //menu.Plugin = Plugin;
-            var cmd = command ?? AddCommond(menu);
-            var bar =
-                (CommandBarButton)cmd.AddControl(parentMenu.CommandBar, parentMenu.Controls.Count + menu.Position);
+            CommandBarButton bar;
+            if (Host.AddIn != null)
+            {
+                //menu.Plugin = Plugin;
+                var cmd = command ?? AddCommond(menu);
+                 bar =
+                    (CommandBarButton) cmd.AddControl(parentMenu.CommandBar, parentMenu.Controls.Count + menu.Position);
+            }
+            else
+            {
+               bar = (CommandBarButton)parentMenu.Controls.Add(MsoControlType.msoControlButton, Missing.Value, Missing.Value, Missing.Value,
+                    true);
+               
+            }
 
             FormatCommandBarButton(menu, bar);
-
-            bar.Enabled = Host.IsDependencySatisfied(menu.DependentItems);
-
             _commandBarControls.Add(bar);
 
             if (menu.SubMenus != null && menu.SubMenus.Count > 0)
@@ -243,7 +251,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         private CommandBarControl AddButton(CommandButton button, bool keepPosition)
         {
-            Command cmd = AddCommond(button);
+            //Command cmd = AddCommond(button);
             if (keepPosition)
                 button.LoadSubMenus();
             CommandBarControl cmdControl = null;
@@ -281,6 +289,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
                     control.Action.Invoke();
                 };
             }
+            btn.Enabled = Host.IsDependencySatisfied(control.DependentItems);
         }
     }
 }
