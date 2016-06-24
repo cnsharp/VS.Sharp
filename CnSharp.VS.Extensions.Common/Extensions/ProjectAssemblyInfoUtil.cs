@@ -71,7 +71,7 @@ namespace CnSharp.VisualStudio.Extensions
             var assemblyInfo = ReadFile(file);
             if (string.IsNullOrEmpty(assemblyInfo))
                 throw new FileLoadException("AssemblyInfo file content is empty.");
-            assemblyInfo = Regex.Replace(assemblyInfo, "//.*", "");
+            assemblyInfo = Regex.Replace(assemblyInfo, "['|//].*", "");
             string fileVersion = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyFileVersion");
 
             string version = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyVersion");
@@ -158,8 +158,8 @@ namespace CnSharp.VisualStudio.Extensions
     {
         public AssemblyInfoVbManager()
         {
-            ReadRegexPattern = "[^/]\\<assembly:\\s*?{0}\\(\"(?<content>.+)\"\\)";
-            WriteRegexPattern = "[^/]\\<assembly:\\s*?{0}\\(\".*?\"\\)\\>";
+            ReadRegexPattern = "[^`]\\<Assembly:\\s*?{0}\\(\"(?<content>.+)\"\\)";
+            WriteRegexPattern = "[^`]\\<Assembly:\\s*?{0}\\(\".*?\"\\)\\>";
         }
     }
 }
