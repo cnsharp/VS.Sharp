@@ -55,5 +55,12 @@ namespace CnSharp.VisualStudio.Extensions.Projects
                 Version = Version
             };
         }
+
+        public void Save()
+        {
+            if(Project == null)
+                throw new InvalidOperationException("No project binding.");
+            Project.ModifyAssemblyInfo(this);
+        }
     }
 }

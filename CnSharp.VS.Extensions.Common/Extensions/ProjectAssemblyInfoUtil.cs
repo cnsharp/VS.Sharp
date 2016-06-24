@@ -11,13 +11,70 @@ namespace CnSharp.VisualStudio.Extensions
     {
         public static ProjectAssemblyInfo GetProjectAssemblyInfo(this Project project)
         {
-            string assemblyInfo = GetAssemblyInfo(project);
+            string assemblyInfoFile = GetAssemblyInfoFileName(project);
+            var manager = AssemblyInfoFileManagerFactory.Get(assemblyInfoFile);
+            return manager.Read(assemblyInfoFile);
+        }
+
+   
+
+        public static void ModifyAssemblyInfo(this Project project,ProjectAssemblyInfo assemblyInfo)
+        {
+            var assemblyInfoFile = project.GetAssemblyInfoFileName();
+            var manager = AssemblyInfoFileManagerFactory.Get(assemblyInfoFile);
+            manager.Save(assemblyInfo,assemblyInfoFile);
+        }
+        
+
+        public static string GetAssemblyInfoFileName(this Project project)
+        {
+            string prjDir = Path.GetDirectoryName(project.FileName);
+            string assemblyInfoFile = prjDir + "\\Properties\\AssemblyInfo.cs";
+            if (!File.Exists(assemblyInfoFile))
+            {
+                assemblyInfoFile = prjDir + "\\AssemblyInfo.cs";
+            }
+            if (!File.Exists(assemblyInfoFile))
+            {
+                assemblyInfoFile = prjDir + "\\My Project\\AssemblyInfo.vb";
+            }
+            if (!File.Exists(assemblyInfoFile))
+            {
+                assemblyInfoFile = prjDir + "\\AssemblyInfo.vb";
+            }
+            if (!File.Exists(assemblyInfoFile))
+            {
+                throw new FileNotFoundException("AssemblyInfo file not found in this project.");
+            }
+            return assemblyInfoFile;
+        }
+
+    }
+
+
+    public class AssemblyInfoFileManagerFactory
+    {
+        public static AssemblyInfoFileManager Get(string file)
+        {
+            var ext = Path.GetExtension(file).TrimStart('.').ToLower();
+            return ext == "cs" ? (AssemblyInfoFileManager) new AssemblyInfoCsManager() : new AssemblyInfoVbManager();
+        }
+    }
+
+    public abstract class AssemblyInfoFileManager
+    {
+        protected string ReadRegexPattern;
+        protected string WriteRegexPattern;
+
+        public  ProjectAssemblyInfo Read(string file)
+        {
+            var assemblyInfo = ReadFile(file);
             if (string.IsNullOrEmpty(assemblyInfo))
-                throw new FileNotFoundException("Assembly info file 'AssemblyInfo.cs' not found in this project.");
+                throw new FileLoadException("AssemblyInfo file content is empty.");
             assemblyInfo = Regex.Replace(assemblyInfo, "//.*", "");
             string fileVersion = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyFileVersion");
-             
-            string version = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyVersion"); 
+
+            string version = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyVersion");
             string productName = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyProduct");
             string companyName = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyCompany");
             string title = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyTitle");
@@ -25,7 +82,6 @@ namespace CnSharp.VisualStudio.Extensions
             string copyright = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyCopyright");
             return new ProjectAssemblyInfo
             {
-                Project = project,
                 FileVersion = fileVersion,
                 Version = version,
                 ProductName = productName,
@@ -36,22 +92,30 @@ namespace CnSharp.VisualStudio.Extensions
             };
         }
 
-        private static string GetAssemblyAnnotationValue(string assemblyInfo, string attributeName)
+
+        protected string ReadFile(string file)
         {
-            return
-                Regex.Match(assemblyInfo, $"[^/]\\[assembly:\\s*?{attributeName}\\(\"(?<content>.+)\"\\)").Groups["content"].Value;
+            using (var sr = new StreamReader(file, Encoding.Default))
+            {
+                return sr.ReadToEnd();
+            }
         }
 
-        public static void ModifyAssemblyInfo(this Project project,ProjectAssemblyInfo assemblyInfo)
-        {
-            var file = project.GetAssemblyInfoFileName();
 
-            var assemblyText = project.GetAssemblyInfo();
+        protected  string GetAssemblyAnnotationValue(string assemblyInfo, string attributeName)
+        {
+            return
+                Regex.Match(assemblyInfo, string.Format(ReadRegexPattern, attributeName)).Groups["content"].Value;
+        }
+
+        public virtual void Save(ProjectAssemblyInfo assemblyInfo, string file)
+        {
+            var assemblyText = ReadFile(file);
 
             var sc = Host.Instance.SourceControl;
             sc?.CheckOut(Path.GetDirectoryName(Host.Instance.DTE.Solution.FullName), file);
 
-            using (var sw = new StreamWriter(file,false, Encoding.Unicode))
+            using (var sw = new StreamWriter(file, false, Encoding.Unicode))
             {
                 assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyFileVersion", assemblyInfo.FileVersion);
                 assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyVersion", assemblyInfo.Version);
@@ -64,47 +128,38 @@ namespace CnSharp.VisualStudio.Extensions
             }
         }
 
-        private static string ReplaceAssemblyAnnotation(string assemblyText, string attributeName, string value)
+       protected string ReplaceAssemblyAnnotation(string assemblyText, string attributeName, string value)
         {
             //var text = Regex.Replace(assemblyText, $"[^/]\\[assembly:\\s*?{attributeName}\\(\".*?\"\\)\\]",
             //    $"[assembly: {attributeName}(\"{value}\")]\n");
             //return text.Replace("\r[", "\r\n[");//这里有个坑
 
             var text = assemblyText;
-            var m = Regex.Match(text, $"[^/]\\[assembly:\\s*?{attributeName}\\(\".*?\"\\)\\]");
+            var m = Regex.Match(text, string.Format(WriteRegexPattern,attributeName));
             if (m.Success)
             {
-                var newValue = Regex.Replace(m.Value, "\\(\".*?\"\\)",$"(\"{value}\")") ;
+                var newValue = Regex.Replace(m.Value, "\\(\".*?\"\\)", $"(\"{value}\")");
                 text = text.Replace(m.Value, newValue);
             }
             return text;
         }
+    }
 
-        public static string GetAssemblyInfoFileName(this Project project)
+    public class AssemblyInfoCsManager : AssemblyInfoFileManager
+    {
+        public AssemblyInfoCsManager()
         {
-            string prjDir = Path.GetDirectoryName(project.FileName);
-            string assemblyInfoFile = prjDir + "\\Properties\\AssemblyInfo.cs";
-            if (!File.Exists(assemblyInfoFile))
-            {
-                assemblyInfoFile = prjDir + "\\AssemblyInfo.cs";
-            }
-            if (!File.Exists(assemblyInfoFile))
-            {
-                return null;
-            }
-            return assemblyInfoFile;
+            ReadRegexPattern = "[^/]\\[assembly:\\s*?{0}\\(\"(?<content>.+)\"\\)";
+            WriteRegexPattern = "[^/]\\[assembly:\\s*?{0}\\(\".*?\"\\)\\]";
         }
+    }
 
-        public static string GetAssemblyInfo(this Project project)
+    public class AssemblyInfoVbManager : AssemblyInfoFileManager
+    {
+        public AssemblyInfoVbManager()
         {
-            string assemblyInfoFile = GetAssemblyInfoFileName(project);
-            if (string.IsNullOrEmpty(assemblyInfoFile))
-                return null;
-
-            using (var sr = new StreamReader(assemblyInfoFile, Encoding.Default))
-            {
-                return sr.ReadToEnd();
-            }
+            ReadRegexPattern = "[^/]\\<assembly:\\s*?{0}\\(\"(?<content>.+)\"\\)";
+            WriteRegexPattern = "[^/]\\<assembly:\\s*?{0}\\(\".*?\"\\)\\>";
         }
     }
 }
