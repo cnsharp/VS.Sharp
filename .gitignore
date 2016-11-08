@@ -97,6 +97,7 @@ publish/
 
 # NuGet Packages Directory
 packages/
+*.nupkg
 
 # Windows Azure Build Output
 csx
@@ -153,3 +154,4 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+

@@ -13,7 +13,9 @@ namespace CnSharp.VisualStudio.Extensions
         {
             string assemblyInfoFile = GetAssemblyInfoFileName(project);
             var manager = AssemblyInfoFileManagerFactory.Get(assemblyInfoFile);
-            return manager.Read(assemblyInfoFile);
+            var info = manager.Read(assemblyInfoFile);
+            info.Project = project;
+            return info;
         }
 
    
