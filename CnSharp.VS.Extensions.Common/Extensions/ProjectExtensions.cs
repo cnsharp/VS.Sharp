@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CnSharp.VisualStudio.Extensions.Projects;
 using EnvDTE;
 using VSLangProj;
 using VSLangProj80;
@@ -44,8 +45,8 @@ namespace CnSharp.VisualStudio.Extensions
         /// <returns></returns>
         public static IEnumerable<Project> GetReferenceProjects(this Project project)
         {
-            var vsProject = ((VSProject2) (project.Object));
-            return from Reference3 r in vsProject.References where r.SourceProject != null select (r.SourceProject);
+            var vsProject = (VSProject2) project.Object;
+            return from Reference3 r in vsProject.References where r.SourceProject != null select r.SourceProject;
         }
 
 
@@ -287,6 +288,113 @@ namespace CnSharp.VisualStudio.Extensions
                 pi = pi.Item(path[i]).ProjectItems;
             }
             pi.Item(item).Delete();
+        }
+
+        public static string GetPropertyValue(this Project project, string key)
+        {
+            try
+            {
+                return project.Properties.Item(key).Value.ToString();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static bool IsNetCoreProject(this Project project)
+        {
+            return project.GetPropertyValue("TargetFrameworkMoniker").StartsWith(".NETCore");
+        }
+
+        public static bool IsNetStandardProject(this Project project)
+        {
+            return project.GetPropertyValue("TargetFrameworkMoniker").StartsWith(".NETStandard");
+        }
+
+        public static bool IsNetFrameworkProject(this Project project)
+        {
+            return project.GetPropertyValue("TargetFrameworkMoniker").StartsWith(".NETFramework");
+        }
+
+        public static string GetFileName(this Project project)
+        {
+            return project.GetPropertyValue("FileName");
+        }
+
+        public static string GetCodeFileExtension(this Project project)
+        {
+            return Path.GetExtension(project.GetFileName()).Replace("proj", string.Empty);
+        }
+
+        public static void SaveCommonAssemblyInfo(this Project project,CommonAssemblyInfo assemblyInfo)
+        {
+            var file = Path.Combine(Path.GetDirectoryName(project.DTE.Solution.FileName),
+                typeof(CommonAssemblyInfo) + project.GetCodeFileExtension());
+            var manager = AssemblyInfoFileManagerFactory.Get(project);
+            manager.Save(assemblyInfo,file);
+        }
+
+
+        public static ProjectItem FindProjectItem(this Project project, string name, bool recursive)
+        {
+            ProjectItem projectItem = null;
+
+            if (project.Kind != Constants.vsProjectKindSolutionItems)
+            {
+                if (project.ProjectItems != null && project.ProjectItems.Count > 0)
+                {
+
+                    projectItem = FindItemByName(project.ProjectItems, name, recursive);
+                }
+            }
+            else
+            {
+                // if solution folder, one of its ProjectItems might be a real project
+                foreach (ProjectItem item in project.ProjectItems)
+                {
+                    Project realProject = item.Object as Project;
+
+                    if (realProject != null)
+                    {
+                        projectItem = FindProjectItem(realProject, name, recursive);
+
+                        if (projectItem != null)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return projectItem;
+        }
+
+        public static ProjectItem FindItemByName(this ProjectItems items, string name, bool recursive)
+        {
+            foreach (ProjectItem item in items)
+            {
+                if (item.Name == name)
+                    return item;
+                if (recursive)
+                    return FindItemByName(item.ProjectItems, name, true);
+            }
+            return null;
+        }
+
+        public static void LinkCommonAssemblyInfoFile(this Project project,string file)
+        {
+            var manager = AssemblyInfoFileManagerFactory.Get(project);
+            var folderName = manager.FolderName;
+            var folder = Path.Combine(project.GetDirectory(), folderName);
+            ProjectItem folderItem;
+            if (!Directory.Exists(folder))
+                folderItem = project.ProjectItems.AddFolder(folderName);
+            else
+            {
+                folderItem = project.ProjectItems.FindItemByName(folderName, false);
+            }
+            folderItem.ProjectItems.AddFromFile(file);
         }
     }
 }

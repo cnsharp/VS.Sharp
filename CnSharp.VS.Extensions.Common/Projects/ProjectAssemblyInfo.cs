@@ -1,39 +1,52 @@
 ﻿using System;
 using System.Xml.Serialization;
+using EnvDTE;
 
 namespace CnSharp.VisualStudio.Extensions.Projects
 {
     [Serializable]
-    public class ProjectAssemblyInfo : IComparable<ProjectAssemblyInfo>
+    public class ProjectAssemblyInfo : CommonAssemblyInfo, IComparable<ProjectAssemblyInfo>
     {
-        [XmlIgnore]
-        public EnvDTE.Project Project { get; set; }
-
-        public string ProjectName
+        public ProjectAssemblyInfo()
         {
-            get { return Project == null ? string.Empty : Project.Name; }
+            
         }
-        public string Version { get; set; }
+
+        public ProjectAssemblyInfo(Project project)
+        {
+            Project = project;
+        }
+
+        private Project _project;
+
+        [XmlIgnore]
+        public Project Project
+        {
+            get { return _project; }
+            set
+            {
+                _project = value;
+                Title = _project.GetPropertyValue("Title");
+                Company = _project.GetPropertyValue("Company");
+                Description = _project.GetPropertyValue("Description");
+                Copyright = _project.GetPropertyValue("Copyright");
+                Version = _project.GetPropertyValue("AssemblyVersion");
+                FileVersion = _project.GetPropertyValue("AssemblyFileVersion");
+                Product = _project.GetPropertyValue("Product");
+            }
+        }
+
+        public string ProjectName => Project == null ? string.Empty : Project.Name;
+
         public string FileVersion { get; set; }
-        public string Copyright { get; set; }
-        public string ProductName { get; set; }
-        public string Company { get; set; }
         public string Title { get; set; }
-
         public string Description { get; set; }
-
 
         public int CompareTo(ProjectAssemblyInfo other)
         {
-            if (String.CompareOrdinal(Version, other.Version) != 0)
-                return -1;
+            var result = base.CompareTo(other);
+            if (result != 0) return result;
             if (String.CompareOrdinal(FileVersion, other.FileVersion) != 0)
-                return -1;
-            if (String.CompareOrdinal(Copyright, other.Copyright) != 0)
-                return -1;
-            if (String.CompareOrdinal(ProductName, other.ProductName) != 0)
-                return -1;
-            if (String.CompareOrdinal(Company, other.Company) != 0)
                 return -1;
             if (String.CompareOrdinal(Title, other.Title) != 0)
                 return -1;
@@ -50,17 +63,54 @@ namespace CnSharp.VisualStudio.Extensions.Projects
                 Company = Company,
                 Copyright = Copyright,
                 FileVersion = FileVersion,
-                ProductName = ProjectName,
+                Product = ProjectName,
                 Title = Title,
                 Version = Version
             };
         }
 
-        public void Save()
+        public void Merge(CommonAssemblyInfo other)
         {
-            if(Project == null)
-                throw new InvalidOperationException("No project binding.");
-            Project.ModifyAssemblyInfo(this);
+            if (!string.IsNullOrEmpty(other.Company) && string.IsNullOrEmpty(Company))
+                Company = other.Company;
+            if (!string.IsNullOrEmpty(other.Product) && string.IsNullOrEmpty(Product))
+                Product = other.Product;
+            if (!string.IsNullOrEmpty(other.Copyright) && string.IsNullOrEmpty(Copyright))
+                Copyright = other.Copyright;
+            if (!string.IsNullOrEmpty(other.Trademark) && string.IsNullOrEmpty(Trademark))
+                Trademark = other.Trademark;
+            if (!string.IsNullOrEmpty(other.Version) && string.IsNullOrEmpty(Version))
+                Version = other.Version;
         }
     }
+
+    [Serializable]
+    public class CommonAssemblyInfo : IComparable<CommonAssemblyInfo>
+    {
+        public string Version { get; set; }
+        public string Copyright { get; set; }
+        public string Product { get; set; }
+        public string Company { get; set; }
+        public string Trademark { get; set; }
+
+        #region Implementation of IComparable<in CommonAssemblyInfo>
+
+        public int CompareTo(CommonAssemblyInfo other)
+        {
+            if (String.CompareOrdinal(Version, other.Version) != 0)
+                return -1;
+            if (String.CompareOrdinal(Copyright, other.Copyright) != 0)
+                return -1;
+            if (String.CompareOrdinal(Product, other.Product) != 0)
+                return -1;
+            if (String.CompareOrdinal(Company, other.Company) != 0)
+                return -1;
+            if (String.CompareOrdinal(Trademark, other.Trademark) != 0)
+                return -1;
+            return 0;
+        }
+
+        #endregion
+    }
+
 }
