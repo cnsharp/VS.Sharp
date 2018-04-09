@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using CnSharp.VisualStudio.Extensions.Projects;
 using EnvDTE;
 using VSLangProj;
@@ -382,6 +384,23 @@ namespace CnSharp.VisualStudio.Extensions
             return null;
         }
 
+        public static IEnumerable<ProjectItem> FindItemByName(this ProjectItems items, Func<string,bool> matchFunc)
+        {
+            return items.Cast<ProjectItem>().Where(item => matchFunc(item.Name));
+        }
+
+        public static string GetCommonAssemblyInfoFilePath(this Project project)
+        {
+            var manager = AssemblyInfoFileManagerFactory.Get(project);
+            var folderName = manager.FolderName;
+            var folder = Path.Combine(project.GetDirectory(), folderName);
+            if (!Directory.Exists(folder)) return null;
+            var folderItem = project.ProjectItems.FindItemByName(folderName, false);
+            var sub =
+                folderItem.ProjectItems.FindItemByName(n => Regex.IsMatch(n, ".+AssemblyInfo.+"))?.FirstOrDefault();
+            return sub?.FileNames[0];
+        }
+
         public static void LinkCommonAssemblyInfoFile(this Project project,string file)
         {
             var manager = AssemblyInfoFileManagerFactory.Get(project);
@@ -394,6 +413,9 @@ namespace CnSharp.VisualStudio.Extensions
             {
                 folderItem = project.ProjectItems.FindItemByName(folderName, false);
             }
+            var fileName = Path.GetFileName(file);
+            var linkItem = folderItem.ProjectItems.FindItemByName(fileName, false);
+            linkItem?.Delete();
             folderItem.ProjectItems.AddFromFile(file);
         }
     }

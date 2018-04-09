@@ -18,6 +18,14 @@ namespace CnSharp.VisualStudio.Extensions
                 if (string.IsNullOrEmpty(pai.Company) || string.IsNullOrEmpty(pai.Product) ||
                     string.IsNullOrEmpty(pai.Copyright))
                 {
+                    CommonAssemblyInfo commonInfo = null;
+                    var commonInfoFileLinked = project.GetCommonAssemblyInfoFilePath();
+                    if (commonInfoFileLinked != null)
+                    {
+                        commonInfo = ReadCommonAssemblyInfo(commonInfoFileLinked);
+                        pai.Merge(commonInfo);
+                        return pai;
+                    }
                     //search common assembly info files
                     var slnDir = Path.GetDirectoryName(project.DTE.Solution.FullName);
                     var assemblyInfoFiles = Directory.GetFiles(slnDir, "*AssemblyInfo.*", SearchOption.AllDirectories);
@@ -26,9 +34,9 @@ namespace CnSharp.VisualStudio.Extensions
                         var fileName = Path.GetFileNameWithoutExtension(file);
                         if (string.Compare(fileName, "AssemblyInfo", StringComparison.InvariantCultureIgnoreCase) == 0)
                             continue;
-                        var manager = AssemblyInfoFileManagerFactory.Get(project);
-                        var commonInfo = manager.Read(file);
-                        commonInfo.ToString();
+                        commonInfo = ReadCommonAssemblyInfo(file);
+                        pai.Merge(commonInfo);
+                        return pai;
                     }
                 }
             }
@@ -58,13 +66,13 @@ namespace CnSharp.VisualStudio.Extensions
             manager.Save(assemblyInfo,fileName);
         }
 
-        public static void RemoveCommonAssemblyInfoAnnotations(this Project project)
+        public static void RemoveCommonAssemblyInfoAnnotations(this Project project, params string[] skipProperties)
         {
             var assemblyInfoFile = project.GetAssemblyInfoFileName();
             var manager = AssemblyInfoFileManagerFactory.Get(project);
-            manager.RemoveCommonInfo(assemblyInfoFile);
+            manager.RemoveCommonInfo(assemblyInfoFile,skipProperties);
         }
-        
+
 
         public static string GetAssemblyInfoFileName(this Project project)
         {
