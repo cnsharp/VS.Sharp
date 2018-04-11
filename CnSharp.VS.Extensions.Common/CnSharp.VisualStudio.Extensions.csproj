@@ -112,6 +112,7 @@
     <Compile Include="IWindowAccessor.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Projects\ProjectAssemblyInfo.cs" />
+    <Compile Include="Projects\PackageProjectProperties.cs" />
     <Compile Include="Resources\ImageConverter.cs">
       <SubType>Component</SubType>
     </Compile>

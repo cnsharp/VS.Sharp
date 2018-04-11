@@ -21,14 +21,7 @@ namespace CnSharp.VisualStudio.Extensions
                     return ai.ToManifestMetadata();
                 return metadata.LoadFromNuspecFile(nuspecFile).CopyFromAssemblyInfo(ai);
             }
-            var props = typeof(ManifestMetadata).GetProperties();
-            foreach (var prop in props)
-            {
-                var key = prop.Name;
-                var v = project.GetPropertyValue(key) ?? project.GetPropertyValue("Package"+key);
-                if (v != null)
-                    prop.SetValue(metadata,v,null);
-            }
+            metadata = project.GetPackageProjectProperties().ToManifestMetadata();
             return metadata;
         }
 
@@ -56,35 +49,55 @@ namespace CnSharp.VisualStudio.Extensions
             return string.IsNullOrWhiteSpace(value) || value.StartsWith("$");
         }
 
-        public static ManifestMetadata ToManifestMetadata(this ProjectAssemblyInfo ai)
+        public static ManifestMetadata ToManifestMetadata(this ProjectAssemblyInfo pai)
         {
             var metadata = new ManifestMetadata
             {
-                Id = ai.Title,
-                Owners = ai.Company,
-                Title = ai.Title,
-                Description = ai.Description,
-                Authors = ai.Company,
-                Copyright = ai.Copyright
+                Id = pai.Title,
+                Owners = pai.Company,
+                Title = pai.Title,
+                Description = pai.Description,
+                Authors = pai.Company,
+                Copyright = pai.Copyright
             };
             return metadata;
         }
 
-        public static ManifestMetadata CopyFromAssemblyInfo(this ManifestMetadata metadata,ProjectAssemblyInfo ai)
+        public static ManifestMetadata CopyFromAssemblyInfo(this ManifestMetadata metadata,ProjectAssemblyInfo pai)
         {
             if (metadata.Id.IsEmptyOrPlaceHolder())
-                metadata.Id = ai.Title;
+                metadata.Id = pai.Title;
             if (metadata.Title.IsEmptyOrPlaceHolder())
-                metadata.Title = ai.Title;
+                metadata.Title = pai.Title;
             if (metadata.Owners.IsEmptyOrPlaceHolder())
-                metadata.Owners = ai.Company;
+                metadata.Owners = pai.Company;
             if (metadata.Description.IsEmptyOrPlaceHolder())
-                metadata.Description = ai.Description;
+                metadata.Description = pai.Description;
             if (metadata.Authors.IsEmptyOrPlaceHolder())
-                metadata.Authors = ai.Company;
+                metadata.Authors = pai.Company;
             if (metadata.Copyright.IsEmptyOrPlaceHolder())
-                metadata.Copyright = ai.Copyright;
+                metadata.Copyright = pai.Copyright;
             return metadata;
+        }
+
+        public static ManifestMetadata ToManifestMetadata(this PackageProjectProperties ppp)
+        {
+            return new ManifestMetadata
+            {
+                Id = ppp.PackageId,
+                Authors = ppp.Authors,
+                Copyright = ppp.Copyright,
+                Owners = ppp.Company,
+                Description = ppp.Description,
+                IconUrl = ppp.PackageIconUrl,
+                Language = ppp.NeutralLanguage,
+                LicenseUrl = ppp.PackageLicenseUrl,
+                ReleaseNotes = ppp.PackageReleaseNotes,
+                RequireLicenseAcceptance = ppp.PackageRequireLicenseAcceptance,
+                ProjectUrl = ppp.PackageProjectUrl,
+                Tags = ppp.PackageTags,
+                Version = ppp.Version
+            };
         }
     }
 

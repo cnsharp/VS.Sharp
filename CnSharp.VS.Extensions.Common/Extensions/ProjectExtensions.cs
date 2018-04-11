@@ -418,5 +418,26 @@ namespace CnSharp.VisualStudio.Extensions
             linkItem?.Delete();
             folderItem.ProjectItems.AddFromFile(file);
         }
+
+        public static PackageProjectProperties GetPackageProjectProperties(this Project project)
+        {
+            var ppp = new PackageProjectProperties();
+            var properties = typeof(PackageProjectProperties).GetProperties().ToList();
+            properties.ForEach(p =>
+            {
+                p.SetValue(ppp, project.Properties.Item(p.Name).Value,null); 
+            });
+            return ppp;
+        }
+
+        public static void SavePackageProjectProperties(this Project project, PackageProjectProperties ppp)
+        {
+            var properties = typeof(PackageProjectProperties).GetProperties().ToList();
+            properties.ForEach(p =>
+            {
+                project.Properties.Item(p.Name).Value = p.GetValue(ppp, null);
+            });
+            project.Save();
+        }
     }
 }
