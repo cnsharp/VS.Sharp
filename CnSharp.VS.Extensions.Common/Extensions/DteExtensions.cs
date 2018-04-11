@@ -86,19 +86,6 @@ namespace CnSharp.VisualStudio.Extensions
             outputPane.Activate();
         }
 
-        public static ProjectItem FindSolutionItemByName(this DTE dte, string name, bool recursive)
-        {
-            ProjectItem projectItem = null;
-            foreach (Project project in dte.Solution.Projects)
-            {
-                projectItem = project.FindProjectItem(name, recursive);
-
-                if (projectItem != null)
-                {
-                    break;
-                }
-            }
-            return projectItem;
-        }
+     
     }
 }

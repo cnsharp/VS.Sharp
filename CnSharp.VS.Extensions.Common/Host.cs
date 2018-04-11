@@ -57,10 +57,11 @@ namespace CnSharp.VisualStudio.Extensions
             }
         }
 
-        public DTE2 Dte2
-        {
-            get { return (DTE2) DTE; }
-        }
+        public DTE2 Dte2 => (DTE2) DTE;
+
+        public Solution Solution => DTE.Solution;
+
+        public Solution2 Solution2 =>  Solution as Solution2;
 
         public ISourceControl SourceControl { get; set; }
 
@@ -136,35 +137,6 @@ namespace CnSharp.VisualStudio.Extensions
                     return _dte.Solution != null && _dte.Solution.Projects.Count > 0;
             }
             return true;
-        }
-    }
-
-    public static class EnumExt
-    {
-        /// <summary>
-        ///     Check to see if a flags enumeration has a specific flag set.
-        /// </summary>
-        /// <param name="variable">Flags enumeration to check</param>
-        /// <param name="value">Flag to check for</param>
-        /// <returns></returns>
-        public static bool HasFlag(this Enum variable, Enum value)
-        {
-            if (variable == null)
-                return false;
-
-            if (value == null)
-                throw new ArgumentNullException("value");
-
-            // Not as good as the .NET 4 version of this function, but should be good enough
-            if (!Enum.IsDefined(variable.GetType(), value))
-            {
-                throw new ArgumentException(string.Format(
-                    "Enumeration type mismatch.  The flag is of type '{0}', was expecting '{1}'.",
-                    value.GetType(), variable.GetType()));
-            }
-
-            var num = Convert.ToUInt64(value);
-            return ((Convert.ToUInt64(variable) & num) == num);
         }
     }
 }

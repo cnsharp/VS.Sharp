@@ -106,6 +106,7 @@
     <Compile Include="Extensions\NuGetExtensions.cs" />
     <Compile Include="Extensions\AssemblyInfoUtil.cs" />
     <Compile Include="Extensions\ProjectExtensions.cs" />
+    <Compile Include="Extensions\SolutionExtensions.cs" />
     <Compile Include="Host.cs" />
     <Compile Include="IDocumentAccessor.cs" />
     <Compile Include="IWindowAccessor.cs" />
