@@ -111,6 +111,8 @@
     <Compile Include="IDocumentAccessor.cs" />
     <Compile Include="IWindowAccessor.cs" />
     <Compile Include="Plugin.cs" />
+    <Compile Include="Projects\CommonAssemblyInfo.cs" />
+    <Compile Include="Projects\IPackageCommonMetadata.cs" />
     <Compile Include="Projects\ProjectAssemblyInfo.cs" />
     <Compile Include="Projects\PackageProjectProperties.cs" />
     <Compile Include="Resources\ImageConverter.cs">

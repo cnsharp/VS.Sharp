@@ -430,12 +430,16 @@ namespace CnSharp.VisualStudio.Extensions
             return ppp;
         }
 
-        public static void SavePackageProjectProperties(this Project project, PackageProjectProperties ppp)
+        public static void SavePackageProjectProperties(this Project project, PackageProjectProperties ppp,params string[] skipProperties)
         {
             var properties = typeof(PackageProjectProperties).GetProperties().ToList();
+            if (skipProperties != null)
+                properties = properties.Where(p => !skipProperties.Contains(p.Name)).ToList();
             properties.ForEach(p =>
             {
-                project.Properties.Item(p.Name).Value = p.GetValue(ppp, null);
+                var v = p.GetValue(ppp,null);
+                if (!string.IsNullOrWhiteSpace(v?.ToString()))
+                    project.Properties.Item(p.Name).Value = v;
             });
             project.Save();
         }
