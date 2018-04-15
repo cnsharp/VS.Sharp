@@ -53,11 +53,17 @@ namespace CnSharp.VisualStudio.Extensions
 
 
 
-        public static void Save(this ProjectAssemblyInfo assemblyInfo)
+        public static void Save(this ProjectAssemblyInfo assemblyInfo,bool includeCommonInfo = false)
         {
             var assemblyInfoFile = assemblyInfo.Project.GetAssemblyInfoFileName();
             var manager = AssemblyInfoFileManagerFactory.Get(assemblyInfo.Project);
             manager.Save(assemblyInfo,assemblyInfoFile);
+
+            if (!includeCommonInfo) return;
+
+            var commonInfoFile = assemblyInfo.Project.GetCommonAssemblyInfoFilePath();
+            if(commonInfoFile != null)
+                Save(assemblyInfo,commonInfoFile);
         }
 
         public static void Save(this CommonAssemblyInfo assemblyInfo,string fileName)
@@ -234,6 +240,7 @@ namespace CnSharp.VisualStudio.Extensions
             using (var sw = new StreamWriter(file, false, Encoding.Unicode))
             {
                 var sb = new StringBuilder(CommonInfoUsingTemplate);
+                sb.AppendLine();
                 var props = typeof(CommonAssemblyInfo).GetProperties().ToList();
                 props.ForEach(p =>
                     {
