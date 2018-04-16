@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using System.Xml;
 using CnSharp.VisualStudio.Extensions.Projects;
 using EnvDTE;
 using VSLangProj;
@@ -317,6 +318,13 @@ namespace CnSharp.VisualStudio.Extensions
         public static bool IsNetFrameworkProject(this Project project)
         {
             return project.GetPropertyValue("TargetFrameworkMoniker").StartsWith(".NETFramework");
+        }
+
+        public static bool IsSdkBased(this Project project)
+        {
+            var doc = new XmlDocument();
+            doc.Load(project.FileName);
+            return doc.DocumentElement.HasAttribute("Sdk");
         }
 
         public static string GetFileName(this Project project)

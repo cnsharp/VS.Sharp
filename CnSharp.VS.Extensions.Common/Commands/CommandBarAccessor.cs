@@ -12,8 +12,9 @@ namespace CnSharp.VisualStudio.Extensions.Commands
     public class CommandBarAccessor : ICommandBarAccessor
     {
         private static readonly Host Host = Host.Instance;
-        private readonly IList<Command> _commands = new List<Command>();
+        private readonly List<Command> _commands = new List<Command>();
         private readonly List<CommandBarControl> _commandBarControls = new List<CommandBarControl>();
+        private readonly List<CommandControl> _commandControls = new List<CommandControl>();
 
         //public Plugin Plugin { get; set; }
 
@@ -21,6 +22,8 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         {
             //control.Plugin = Plugin;
             AddControl(control, false);
+            if(!_commandControls.Contains(control))
+             _commandControls.Add(control);
         }
 
         private CommandBarControl AddControl(CommandControl control, bool keepPosition)
@@ -49,7 +52,11 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             var controls = _commandBarControls.Where(c => ids.Contains(c.Tag));
             foreach (var control in controls)
             {
+                var cc = _commandControls.Find(m => m.Id == control.Tag);
+                if (cc.EnabledFunc != null)
+                    enabled = enabled && cc.EnabledFunc();
                 control.Enabled = enabled;
+                control.Visible = enabled || cc.UnavailableState != ControlUnavailableState.Invisbile;
             }
         }
 
@@ -212,8 +219,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             var btn = ResetCommandBar(menu, MsoControlType.msoControlPopup, keepPosition);
             btn.Tag = menu.Id;
             btn.Caption = menu.Text;
-            btn.Visible = true;
-            btn.Enabled = Host.IsDependencySatisfied(menu.DependentItems);
+            SetState(btn,menu);
             if (menu.AttachTo != menuBar)
             {
                 btn.BeginGroup = menu.BeginGroup;
@@ -221,6 +227,17 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             return btn;
         }
 
+        private void SetState(CommandBarControl bar,CommandControl control)
+        {
+            var ok = Host.IsDependencySatisfied(control.DependentItems);
+            if (ok)
+            {
+                bar.Visible = bar.Enabled = true;
+                return;
+            }
+            bar.Enabled = false;
+            bar.Visible = control.UnavailableState != ControlUnavailableState.Invisbile;
+        }
 
         private void AddSubMenu(CommandBarPopup parentMenu, CommandMenu menu, Command command = null)
         {
@@ -269,7 +286,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
                 cmdControl = btn;
 
             }
-            cmdControl.Enabled = Host.IsDependencySatisfied(button.DependentItems);
+            SetState(cmdControl,button);
             return cmdControl;
         }
 
@@ -289,7 +306,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
                     control.Action.Invoke();
                 };
             }
-            btn.Enabled = Host.IsDependencySatisfied(control.DependentItems);
+            SetState(btn,control);
         }
     }
 }

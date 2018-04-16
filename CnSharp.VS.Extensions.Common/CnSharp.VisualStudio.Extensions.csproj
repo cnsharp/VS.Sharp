@@ -96,6 +96,7 @@
     <Compile Include="Commands\CommandControl.cs" />
     <Compile Include="Commands\CommandManager.cs" />
     <Compile Include="Commands\CommandMenu.cs" />
+    <Compile Include="Commands\ControlUnavailableState.cs" />
     <Compile Include="Commands\DependentItems.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandBarAccessor.cs" />
