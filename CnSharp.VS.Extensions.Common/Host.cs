@@ -49,7 +49,8 @@ namespace CnSharp.VisualStudio.Extensions
                     _solutionEvents.AfterClosing += SolutionEvents_AfterClosing;
 
                     _dteEvents = _dte.Events.DTEEvents;
-                    _dteEvents.OnBeginShutdown += _dteEvents_OnBeginShutdown;
+                    _dteEvents.OnStartupComplete += DteEvents_OnStartupComplete;
+                    _dteEvents.OnBeginShutdown += DteEvents_OnBeginShutdown;
                 }
             }
         }
@@ -68,6 +69,10 @@ namespace CnSharp.VisualStudio.Extensions
 
         public Action AfterSolutionClosingAction { get; set; }
 
+        public Action StartupCompleteAction { get; set; }
+
+        public Action BeginShutdownAction { get; set; }
+
         public Action<Document> DocumentOpenedAction { get; set; }
 
         public Action<Document> DocumentClosingAction { get; set; }
@@ -75,8 +80,14 @@ namespace CnSharp.VisualStudio.Extensions
         //public ResourceManager ResourceManager { get; set; }
         public static List<Plugin> Plugins { get; set; }
 
-        private void _dteEvents_OnBeginShutdown()
+        private void DteEvents_OnStartupComplete()
         {
+            StartupCompleteAction?.Invoke();
+        }
+
+        private void DteEvents_OnBeginShutdown()
+        {
+            BeginShutdownAction?.Invoke();
         }
 
         private void SolutionEvents_AfterClosing()
