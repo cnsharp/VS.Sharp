@@ -22,10 +22,7 @@ namespace CnSharp.VisualStudio.Extensions
             Plugins = new List<Plugin>();
         }
 
-        public static Host Instance
-        {
-            get { return _host ?? (_host = new Host()); }
-        }
+        public static Host Instance => _host ?? (_host = new Host());
 
         //public Assembly Assembly { get; set; }
 
@@ -37,7 +34,7 @@ namespace CnSharp.VisualStudio.Extensions
 
         public _DTE DTE
         {
-            get { return _dte; }
+            get => _dte;
             set
             {
                 _dte = value;
@@ -67,6 +64,13 @@ namespace CnSharp.VisualStudio.Extensions
 
         public AddIn AddIn { get; set; }
 
+        public Action SolutionOpendAction { get; set; }
+
+        public Action AfterSolutionClosingAction { get; set; }
+
+        public Action<Document> DocumentOpenedAction { get; set; }
+
+        public Action<Document> DocumentClosingAction { get; set; }
 
         //public ResourceManager ResourceManager { get; set; }
         public static List<Plugin> Plugins { get; set; }
@@ -82,6 +86,7 @@ namespace CnSharp.VisualStudio.Extensions
             {
                 plugin.CommandManager.ApplyDependencies(DependentItems.SolutionProject, false);
             }
+            AfterSolutionClosingAction?.Invoke();
         }
 
         private void SolutionEvents_Opened()
@@ -91,6 +96,7 @@ namespace CnSharp.VisualStudio.Extensions
             {
                 plugin.CommandManager.ApplyDependencies(DependentItems.SolutionProject, true);
             }
+            SolutionOpendAction?.Invoke();
         }
 
         private void DocumentEvents_DocumentClosing(Document document)
@@ -104,6 +110,7 @@ namespace CnSharp.VisualStudio.Extensions
                 }
                 _closingLast = false;
             }
+            DocumentClosingAction?.Invoke(document);
         }
 
         private void DocumentEvents_DocumentOpened(Document document)
@@ -112,6 +119,7 @@ namespace CnSharp.VisualStudio.Extensions
             {
                 plugin.CommandManager.ApplyDependencies(DependentItems.Document, true);
             }
+            DocumentOpenedAction?.Invoke(document);
         }
 
         public bool IsDependencySatisfied(DependentItems dependentItems)
