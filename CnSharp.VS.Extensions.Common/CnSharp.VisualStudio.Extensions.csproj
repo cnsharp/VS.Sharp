@@ -124,7 +124,6 @@
     <Compile Include="SourceControl\ISourceControl.cs" />
     <Compile Include="SourceControl\SourceControlManager.cs" />
     <Compile Include="Util\XmlSerializationHelper.cs" />
-    <Compile Include="Util\XmlTextFormatter.cs" />
     <Compile Include="WindowAccessor.cs" />
     <Compile Include="WindowInfo.cs" />
   </ItemGroup>

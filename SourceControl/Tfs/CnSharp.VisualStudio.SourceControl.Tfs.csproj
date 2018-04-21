@@ -10,9 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CnSharp.VisualStudio.SourceControl.Tfs</RootNamespace>
     <AssemblyName>CnSharp.VisualStudio.SourceControl.Tfs</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
@@ -61,17 +61,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CnSharp.VS.Extensions.Common\CnSharp.VisualStudio.Extensions.csproj">
-      <Project>{1822955C-BE64-4D5A-B7E0-E8B0DFF69842}</Project>
-      <Name>CnSharp.VisualStudio.Extensions</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="package.nuspec">
       <SubType>Designer</SubType>
     </None>
     <None Include="sn.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\CnSharp.VS.Extensions.Common\CnSharp.VisualStudio.Extensions.csproj">
+      <Project>{1822955c-be64-4d5a-b7e0-e8b0dff69842}</Project>
+      <Name>CnSharp.VisualStudio.Extensions</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -45,7 +45,6 @@ namespace CnSharp.VisualStudio.Extensions
                     var v = elements.FirstOrDefault(m => m.Name.LocalName.Equals(prop.Name,StringComparison.InvariantCultureIgnoreCase))?.Value;
                     if (v != null)
                     {
-                        v = XmlTextFormatter.Decode(v);
                         prop.SetValue(metadata, v, null);
                     }
                 }
@@ -107,7 +106,7 @@ namespace CnSharp.VisualStudio.Extensions
         {
             var idNode = metadataNode.SelectSingleNode(key);
             if (idNode != null)
-                idNode.InnerText = value == null ? string.Empty : XmlTextFormatter.Encode(value);
+                idNode.InnerText = value == null ? string.Empty : value;
         }
 
         public static void UpdateDependencies(this ManifestMetadata metadata, XmlDocument doc)
