@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>VsSharp</id>
+    <version>17.0.0</version>
+    <title>CnSharp.VisualStudio.Extensions</title>
+    <authors>CnSharp</authors>
+    <owners>CnSharp</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Visual Studio Extensions development SDK</description>
+    <releaseNotes>upgrade SDK to V17(2022)</releaseNotes>
+    <copyright>Copyright © CnSharp Studio 2015-2025</copyright>
+    <iconUrl>https://secure.gravatar.com/avatar/dff08c1ffd5fe20a93c2a606aa88e0d5?s=32&amp;r=g&amp;d=retro</iconUrl>
+    <projectUrl>https://github.com/cnsharp/VS-Sharp</projectUrl>
+    <tags>VisualStudio Extensions,Add-in,VSIX</tags>
+    <dependencies>
+      <group targetFramework="net472">
+        <dependency id="Microsoft.VisualStudio.SDK" version="17.*" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
