@@ -1,4 +1,6 @@
-﻿namespace CnSharp.VisualStudio.Extensions.Projects
+﻿using System;
+
+namespace CnSharp.VisualStudio.Extensions.Projects
 {
     /// <summary>
     /// Package properties of project,see <PropertyGroup></PropertyGroup> section in *proj file.
@@ -22,12 +24,11 @@
         public string FileVersion { get; set; }
         public string NeutralLanguage { get; set; }
         public string Company { get; set; }
+        public string PackageIcon { get; set; }
+        [Obsolete]
         public string PackageIconUrl { get; set; }
         public string AssemblyVersion { get; set; }
         public string Authors { get; set; }
         public string Name { get; set; }
-
-        // It seems here is a bug of  project.Properties that it can't get the value of "IncludeSymbols" property correctly.
-        // public bool IncludeSymbols { get; set; }
     }
 }
