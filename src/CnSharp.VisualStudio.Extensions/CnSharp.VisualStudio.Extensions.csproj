@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <OutputType>Library</OutputType>
@@ -10,6 +10,14 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <AssemblyVersion>
+    </AssemblyVersion>
+    <FileVersion>
+    </FileVersion>
+    <NeutralLanguage>
+    </NeutralLanguage>
+    <Product>
+    </Product>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DocumentationFile>bin\Release\VsSharp.XML</DocumentationFile>
@@ -34,28 +42,25 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Update="package.nuspec">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
   <PropertyGroup>
     <PackageId>VsSharp</PackageId>
-    <RepositoryType />
+    <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageReleaseNotes>upgrade SDK to V17(2022)</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/cnsharp/VS.Sharp</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/cnsharp/VS-Sharp</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/cnsharp/VS.Sharp</PackageProjectUrl>
     <PackageTags>VisualStudio Extensions,Add-in,VSIX</PackageTags>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageIconUrl>https://secure.gravatar.com/avatar/dff08c1ffd5fe20a93c2a606aa88e0d5?s=32&amp;r=g&amp;d=retro</PackageIconUrl>
-    <Authors></Authors>
-    <Name />
+    <PackageIconUrl>
+    </PackageIconUrl>
+    <Authors>Bob Chin</Authors>
+    <Name>
+    </Name>
     <Title>VsSharp</Title>
-    <Version>17.0.0</Version>
+    <Version>17.0.1</Version>
     <Company>CnSharp Studio</Company>
     <Description>A VSIX toolkit.</Description>
     <Copyright>Copyright © CnSharp Studio 2015-2025</Copyright>
@@ -63,6 +68,12 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
+    <PackageIcon>
+    </PackageIcon>
+    <PackageReadmeFile>
+    </PackageReadmeFile>
+    <PackageLicenseUrl>
+    </PackageLicenseUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK">
@@ -75,7 +86,8 @@
   <ItemGroup>
     <None Remove="CnSharp.VisualStudio.Extensions.csproj.DotSettings" />
   </ItemGroup>
-  <Target Name="Pack"></Target>
+  <Target Name="Pack">
+  </Target>
   <ItemGroup>
     <AdditionalFiles Remove="C:\Users\Administrator\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.0.64\build\AdditionalFiles\vs-threading.LegacyThreadSwitchingMembers.txt" />
   </ItemGroup>
@@ -99,5 +111,14 @@
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Remove="C:\Users\Administrator\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.0.64\build\AdditionalFiles\vs-threading.MembersRequiringMainThread.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Pictures\sharp_icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="sharp_icon.png" Link="sharp_icon.png" />
   </ItemGroup>
 </Project>
