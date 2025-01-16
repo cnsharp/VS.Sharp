@@ -23,6 +23,7 @@ namespace CnSharp.VisualStudio.Extensions.Projects
         public string PackageIconUrl { get; set; }
         public string PackageId { get; set; }
         public string PackageLicenseExpression { get; set; }
+        [Obsolete]
         public string PackageLicenseUrl { get; set; }
         public string PackageProjectUrl { get; set; }
         public string PackageReadmeFile { get; set; }
