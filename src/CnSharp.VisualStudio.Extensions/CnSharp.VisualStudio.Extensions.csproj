@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <OutputType>Library</OutputType>
@@ -49,7 +49,7 @@
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageReleaseNotes>upgrade SDK to V17(2022)</PackageReleaseNotes>
-    <RepositoryUrl>https://github.com/cnsharp/VS.Sharp</RepositoryUrl>
+    <RepositoryUrl>https://github.com/cnsharp/VS.Sharp.git</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/cnsharp/VS.Sharp</PackageProjectUrl>
     <PackageTags>VisualStudio Extensions,Add-in,VSIX</PackageTags>
@@ -60,7 +60,7 @@
     <Name>
     </Name>
     <Title>VsSharp</Title>
-    <Version>17.0.1</Version>
+    <Version>17.0.2</Version>
     <Company>CnSharp Studio</Company>
     <Description>A VSIX toolkit.</Description>
     <Copyright>Copyright © CnSharp Studio 2015-2025</Copyright>
@@ -68,8 +68,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <PackageIcon>
-    </PackageIcon>
+    <PackageIcon>sharp_icon.png</PackageIcon>
     <PackageReadmeFile>
     </PackageReadmeFile>
     <PackageLicenseUrl>
