@@ -17,9 +17,6 @@ namespace CnSharp.VisualStudio.Extensions
     /// <summary>
     ///     extensions of <see cref="Project" />
     /// </summary>
-    /// <remarks>
-    ///     http://www.codeproject.com/Articles/36219/Exploring-EnvDTE
-    /// </remarks>
     public static class ProjectExtensions
     {
         /// <summary>
@@ -152,29 +149,61 @@ namespace CnSharp.VisualStudio.Extensions
             throw new NotSupportedException("Currently, system is only set up to do references for normal projects.");
         }
 
-
-        public static void AddFromFile(this Project project, List<string> paths, string file)
+        public static ProjectItem AddFromFile(this Project project, string file)
         {
             var projectItems = project.ProjectItems;
-            foreach (var p in paths) projectItems = projectItems.Item(p).ProjectItems;
-            projectItems.AddFromFile(file);
+            return projectItems.AddFromFile(file);
         }
 
 
-        public static void AddFromFileAsLink(this Project project, List<string> paths, string file, string linkName)
+        public static ProjectItem AddFromFile(this Project project, List<string> paths, string file)
         {
             var projectItems = project.ProjectItems;
-            foreach (var p in paths) projectItems = projectItems.Item(p).ProjectItems;
+            if (paths?.Any() == true)
+            {
+                foreach (var p in paths) 
+                    projectItems = projectItems.Item(p).ProjectItems;
+            }
+            return projectItems.AddFromFile(file);
+        }
+
+        public static ProjectItem AddFromFileAsLink(this Project project, string file, string linkName)
+        {
+            return AddFromFileAsLink(project, null, file, linkName);
+        }
+
+
+        public static ProjectItem AddFromFileAsLink(this Project project, List<string> paths, string file, string linkName)
+        {
+            var projectItems = project.ProjectItems;
+            if (paths?.Any() == true)
+            {
+                foreach (var p in paths)
+                    projectItems = projectItems.Item(p).ProjectItems;
+            }
+            var node = projectItems.Item(file);
+            if (node != null)
+            {
+                project.SetItemAttribute(node, "Link", linkName);
+                return node;
+            }
             var npi = projectItems.AddFromFile(file);
             project.SetItemAttribute(npi, "Link", linkName);
+            return npi;
         }
 
         public static void SetItemAttribute(this Project project, List<string> paths, string file, string key,
             string value)
         {
             var projectItems = project.ProjectItems;
-            foreach (var p in paths) projectItems = projectItems.Item(p).ProjectItems;
-            project.SetItemAttribute(projectItems.Item(file), key, value);
+            if (paths?.Any() == true)
+            {
+                foreach (var p in paths)
+                    projectItems = projectItems.Item(p).ProjectItems;
+            }
+            var item = projectItems.Item(file);
+            if(item == null) return;
+            project.SetItemAttribute(item, key, value);
         }
 
         public static void SetItemAttribute(this Project project, ProjectItem projectItem, string key, string value)
@@ -191,19 +220,50 @@ namespace CnSharp.VisualStudio.Extensions
         }
 
 
-        public static void AddFolder(this Project project, List<string> paths, string newFolder)
+        public static void IncludeFile(this Project project, string file)
         {
             var projectItems = project.ProjectItems;
-            foreach (var p in paths) projectItems = projectItems.Item(p).ProjectItems;
-            projectItems.AddFolder(newFolder);
+            var item = projectItems.AddFromFile(file);
+            project.SetItemAttribute(item, "Include", file);
         }
 
-        //path is a list of folders from the root of the project.
-        public static void DeleteFileOrFolder(this Project project, List<string> paths, string item)
+        public static ProjectItem AddFolder(this Project project, string newFolder)
         {
             var projectItems = project.ProjectItems;
-            foreach (var p in paths) projectItems = projectItems.Item(p).ProjectItems;
-            projectItems.Item(item).Delete();
+           return projectItems.AddFolder(newFolder);
+        }
+
+        public static ProjectItem AddFolder(this Project project, List<string> paths, string newFolder)
+        {
+            var projectItems = project.ProjectItems;
+            if (paths?.Any() == true)
+            {
+                foreach (var p in paths)
+                    projectItems = projectItems.Item(p).ProjectItems;
+            }
+            return projectItems.AddFolder(newFolder);
+        }
+
+        public static void RemoveItem(this Project project, string itemName)
+        {
+            var projectItems = project.ProjectItems;
+            var item = projectItems.Item(itemName);
+            if (item != null)
+                item.Remove();
+        }
+
+
+        public static void RemoveItem(this Project project, List<string> paths, string itemName)
+        {
+            var projectItems = project.ProjectItems;
+            if (paths?.Any() == true)
+            {
+                foreach (var p in paths)
+                    projectItems = projectItems.Item(p).ProjectItems;
+            }
+            var item = projectItems.Item(itemName);
+            if (item != null)    
+                item.Remove();
         }
 
         public static string GetPropertyValue(this Project project, string key)
@@ -385,7 +445,7 @@ namespace CnSharp.VisualStudio.Extensions
                     else
                     {
                         var propertyGroup = doc.SelectSingleNode("/Project/PropertyGroup");
-                        if (propertyGroup != null)
+                        if (propertyGroup != null && val != null && !string.IsNullOrEmpty(val.ToString()))
                         {
                             var newNode = doc.CreateElement(p.Name);
                             newNode.InnerText = val.ToString();

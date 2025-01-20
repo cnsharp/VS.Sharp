@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <OutputType>Library</OutputType>
@@ -47,15 +47,13 @@
   <PropertyGroup>
     <PackageId>VsSharp</PackageId>
     <RepositoryType>git</RepositoryType>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageReleaseNotes>upgrade SDK to V17(2022)</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/cnsharp/VS.Sharp.git</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/cnsharp/VS.Sharp</PackageProjectUrl>
     <PackageTags>VisualStudio Extensions,Add-in,VSIX</PackageTags>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageIconUrl>
-    </PackageIconUrl>
     <Authors>Bob Chin</Authors>
     <Name>
     </Name>
@@ -71,8 +69,6 @@
     <PackageIcon>sharp_icon.png</PackageIcon>
     <PackageReadmeFile>
     </PackageReadmeFile>
-    <PackageLicenseUrl>
-    </PackageLicenseUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK">
@@ -80,44 +76,12 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Util\PackagesConfigReader.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <None Remove="CnSharp.VisualStudio.Extensions.csproj.DotSettings" />
   </ItemGroup>
-  <Target Name="Pack">
-  </Target>
   <ItemGroup>
-    <AdditionalFiles Remove="C:\Users\Administrator\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.0.64\build\AdditionalFiles\vs-threading.LegacyThreadSwitchingMembers.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AdditionalFiles Remove="C:\Users\Administrator\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.0.64\build\AdditionalFiles\vs-threading.MainThreadAssertingMethods.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AdditionalFiles Remove="C:\Users\Administrator\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.0.64\build\AdditionalFiles\vs-threading.MainThreadSwitchingMethods.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AdditionalFiles Remove="C:\Users\Administrator\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.0.64\build\AdditionalFiles\vs-threading.MembersRequiringMainThread.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AdditionalFiles Remove="C:\Users\Administrator\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.0.64\build\AdditionalFiles\vs-threading.LegacyThreadSwitchingMembers.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AdditionalFiles Remove="C:\Users\Administrator\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.0.64\build\AdditionalFiles\vs-threading.MainThreadAssertingMethods.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AdditionalFiles Remove="C:\Users\Administrator\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.0.64\build\AdditionalFiles\vs-threading.MainThreadSwitchingMethods.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AdditionalFiles Remove="C:\Users\Administrator\.nuget\packages\microsoft.visualstudio.threading.analyzers\17.0.64\build\AdditionalFiles\vs-threading.MembersRequiringMainThread.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\..\Pictures\sharp_icon.png">
+    <None Include="sharp_icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="sharp_icon.png" Link="sharp_icon.png" />
   </ItemGroup>
 </Project>
