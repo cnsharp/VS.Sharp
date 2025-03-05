@@ -10,20 +10,14 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-    <AssemblyVersion>
-    </AssemblyVersion>
-    <FileVersion>
-    </FileVersion>
-    <NeutralLanguage>
-    </NeutralLanguage>
-    <Product>
-    </Product>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Product>VS.Sharp</Product>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DocumentationFile>bin\Release\VsSharp.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>True</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
@@ -31,11 +25,6 @@
   <PropertyGroup>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Properties\**" />
-    <EmbeddedResource Remove="Properties\**" />
-    <None Remove="Properties\**" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\ImageConverter.cs">
       <SubType>Component</SubType>
@@ -58,7 +47,7 @@
     <Name>
     </Name>
     <Title>VsSharp</Title>
-    <Version>17.0.4</Version>
+    <Version>17.0.6</Version>
     <Company>CnSharp Studio</Company>
     <Description>A VSIX toolkit.</Description>
     <Copyright>Copyright © CnSharp Studio 2015-2025</Copyright>
