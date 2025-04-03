@@ -9,12 +9,14 @@ namespace CnSharp.VisualStudio.Extensions
     public class Plugin
     {
         public Guid Id { get; set; }
+
+        public string Name { get; set; }
         
         private Assembly _assembly;
 
         public Assembly Assembly
         {
-            get { return _assembly; }
+            get => _assembly;
             set
             {
                 _assembly = value;
@@ -28,14 +30,9 @@ namespace CnSharp.VisualStudio.Extensions
 
         public CommandManager CommandManager { get; set; }
 
-        public ResourceManager ResourceManager
-        {
-            get
-            {
-                return  (CommandConfig != null && Assembly != null) ?
-                    new ResourceManager(CommandConfig.ResourceManager, Assembly) : 
-                    null;
-            }
-        }
+        public ResourceManager ResourceManager =>
+            CommandConfig != null && !string.IsNullOrWhiteSpace(CommandConfig.ResourceManager) && Assembly != null ?
+                new ResourceManager(CommandConfig.ResourceManager, Assembly) : 
+                null;
     }
 }

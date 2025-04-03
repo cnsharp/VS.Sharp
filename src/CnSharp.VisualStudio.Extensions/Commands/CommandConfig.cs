@@ -20,6 +20,10 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         [XmlArrayItem("button")]
         public List<CommandButton> Buttons { get; set; }
 
+        [XmlArray("contextMenus")]
+        [XmlArrayItem("menu")]
+        public List<CommandMenu> ContextMenus { get; set; }
+
 
         [XmlElement("resource")]
         public string ResourceManager { get; set; }

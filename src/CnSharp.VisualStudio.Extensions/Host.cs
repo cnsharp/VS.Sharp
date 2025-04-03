@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using CnSharp.VisualStudio.Extensions.Commands;
 using EnvDTE;
 using EnvDTE80;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace CnSharp.VisualStudio.Extensions
 {
@@ -16,12 +18,23 @@ namespace CnSharp.VisualStudio.Extensions
         private DTEEvents _dteEvents;
         private SolutionEvents _solutionEvents;
 
+
         static Host()
         {
             Plugins = new List<Plugin>();
         }
 
         public static Host Instance => _host ?? (_host = new Host());
+
+        //public Package Package { get; set; }
+        //public AsyncPackage AsyncPackage { get; set; }
+
+        public T GetService<T>() where T : class
+        {
+            return AsyncPackage.GetGlobalService(typeof(T)) as T;
+        }
+
+        public IToolWindowAccessor ToolWindowAccessor { get; set; }
 
         //public Assembly Assembly { get; set; }
 
@@ -56,11 +69,18 @@ namespace CnSharp.VisualStudio.Extensions
 
         public DTE2 Dte2 => (DTE2) DTE;
 
+        public Windows2 Windows => Dte2.Windows as Windows2;
+
         public Solution Solution => DTE.Solution;
 
         public Solution2 Solution2 =>  Solution as Solution2;
 
-        public Action SolutionOpendAction { get; set; }
+        public IVsStatusbar Statusbar { get; set; }
+
+        //public IVsOutputWindow OutputWindow { get; set; }
+
+
+        public Action SolutionOpenedAction { get; set; }
 
         public Action AfterSolutionClosingAction { get; set; }
 
@@ -74,6 +94,37 @@ namespace CnSharp.VisualStudio.Extensions
 
         //public ResourceManager ResourceManager { get; set; }
         public static List<Plugin> Plugins { get; set; }
+
+        public void ShowOutputWindow()
+        {
+            var outputWindow = (OutputWindow)Windows.Item("Output").Object;
+            outputWindow.Parent.AutoHides = false;
+            outputWindow.Parent.Activate();
+        }
+
+        /// <summary>
+        ///     output message to Output Window
+        /// </summary>
+        /// <param name="paneName"></param>
+        /// <param name="message"></param>
+        public void WriteToOutputWindow(string paneName, string message)
+        {
+
+            var outputWindow = (OutputWindow)Windows.Item("Output").Object;
+
+            OutputWindowPane pane;
+            try
+            {
+                pane = outputWindow.OutputWindowPanes.Item(paneName);
+            }
+            catch
+            {
+                pane = outputWindow.OutputWindowPanes.Add(paneName);
+            }
+            pane.Activate();
+            // Add a line of text to the new pane.
+            pane.OutputString(message + Environment.NewLine);
+        }
 
         private void DteEvents_OnStartupComplete()
         {
@@ -100,7 +151,7 @@ namespace CnSharp.VisualStudio.Extensions
             {
                 plugin.CommandManager.ApplyDependencies(DependentItems.SolutionProject, true);
             }
-            SolutionOpendAction?.Invoke();
+            SolutionOpenedAction?.Invoke();
         }
 
         private void DocumentEvents_DocumentClosing(Document document)

@@ -7,7 +7,6 @@ namespace CnSharp.VisualStudio.Extensions.Commands
     public class CommandManager
     {
         private readonly ICommandBarAccessor _commandBarAccessor;
-        private readonly CommandConfig _config;
         private readonly Plugin _plugin;
 
 
@@ -18,7 +17,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
                 throw new InvalidOperationException($"plugin {plugin.Id} already exists.");
             }
 
-            _config = plugin.CommandConfig;
+            CommandConfig = plugin.CommandConfig;
             _plugin = plugin;
             plugin.CommandManager = this;
 
@@ -27,31 +26,25 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             Host.Plugins.Add(plugin);
         }
 
-        public CommandConfig CommandConfig
+        public CommandConfig CommandConfig { get; }
+
+        public virtual void Load()
         {
-            get { return _config; }
-        }
-
-        //public static AddIn AddIn { set; get; }
-
-
-        public  void Load()
-        {
-            _config.Buttons.ForEach(m =>
+            CommandConfig.Buttons.ForEach(m =>
             {
                 m.Plugin = _plugin;
                 _commandBarAccessor.AddControl(m);
             });
-            _config.Menus.ForEach(m =>
+            CommandConfig.Menus.ForEach(m =>
             {
                 m.Plugin = _plugin;
                 _commandBarAccessor.AddControl(m);
             });
-            //_config.ContextMenus.ForEach(m =>
-            //{
-            //    m.Plugin = _plugin;
-            //    _commandBarAccessor.AddControl(m);
-            //});
+            CommandConfig.ContextMenus.ForEach(m =>
+            {
+                m.Plugin = _plugin;
+                _commandBarAccessor.AddControl(m);
+            });
         }
 
         public void Execute(string commandName)
@@ -66,36 +59,32 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         private CommandControl FindCommandControl(string commandName)
         {
-            CommandMenu menu = FindCommandMenu(_config.Menus, commandName);
+            var menu = FindCommandMenu(CommandConfig.Menus, commandName);
             if (menu != null)
             {
                 return menu;
             }
 
-            CommandMenu button = FindCommandMenu(_config.Buttons.Cast<CommandMenu>(), commandName);
+            var button = FindCommandMenu(CommandConfig.Buttons, commandName);
             if (button != null)
             {
                 return button;
             }
 
-            //menu = FindCommandMenu(_config.ContextMenus, commandName);
+            menu = FindCommandMenu(CommandConfig.ContextMenus, commandName);
 
-            //if (menu != null)
-            //{
-            //    return menu;
-            //}
-            return null;
+            return menu;
         }
 
         private CommandMenu FindCommandMenu(IEnumerable<CommandMenu> menus, string commandName)
         {
-            foreach (CommandMenu m in menus)
+            foreach (var m in menus)
             {
-                if (String.Compare(m.Id, commandName, true) == 0)
+                if (string.Compare(m.Id, commandName, StringComparison.OrdinalIgnoreCase) == 0)
                     return m;
                 if (m.SubMenus.Count > 0)
                 {
-                    CommandMenu subMenu = FindCommandMenu(m.SubMenus, commandName);
+                    var subMenu = FindCommandMenu(m.SubMenus, commandName);
                     if (subMenu != null)
                         return subMenu;
                 }
@@ -113,7 +102,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         public void Reset(string commandName)
         {
-            CommandControl control = FindCommandControl(commandName);
+            var control = FindCommandControl(commandName);
             if (control == null)
                 return;
             _commandBarAccessor.ResetControl(control);
@@ -124,8 +113,9 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         {
             var ids = new List<string>();
 
-            ids.AddRange(GetMatchedMenus(_config.Menus, items));
-            ids.AddRange(GetMatchedMenus(_config.Buttons.Cast<CommandMenu>(), items));
+            ids.AddRange(GetMatchedMenus(CommandConfig.Menus, items));
+            ids.AddRange(GetMatchedMenus(CommandConfig.Buttons, items));
+            ids.AddRange(GetMatchedMenus(CommandConfig.ContextMenus, items));
 
             _commandBarAccessor.EnableControls(ids, enabled);
         }
@@ -133,9 +123,9 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         private IEnumerable<string> GetMatchedMenus(IEnumerable<CommandMenu> menus, DependentItems items)
         {
-            foreach (CommandMenu menu in menus)
+            foreach (var menu in menus)
             {
-                foreach (CommandMenu sub in menu.SubMenus)
+                foreach (var sub in menu.SubMenus)
                 {
                     if (sub.DependentItems.HasFlag(items))
                         yield return sub.Id;
@@ -148,34 +138,29 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         public CommandControl FindCommandControl(Type type)
         {
             string typeName = type.FullName;
-            CommandMenu menu = FindCommandMenuByClassName(_config.Menus, typeName);
+            var menu = FindCommandMenuByClassName(CommandConfig.Menus, typeName);
             if (menu != null)
             {
                 return menu;
             }
 
-            CommandMenu button = FindCommandMenuByClassName(_config.Buttons.Cast<CommandMenu>(), typeName);
+            var button = FindCommandMenuByClassName(CommandConfig.Buttons, typeName);
             if (button != null)
             {
                 return button;
             }
 
-            //menu = FindCommandMenuByClassName(_config.ContextMenus, typeName);
+            menu = FindCommandMenuByClassName(CommandConfig.ContextMenus, typeName);
 
-            //if (menu != null)
-            //{
-            //    return menu;
-            //}
-
-            return null;
+            return menu;
         }
 
 
         private CommandMenu FindCommandMenuByClassName(IEnumerable<CommandMenu> menus, string typeName)
         {
-            foreach (CommandMenu m in menus)
+            foreach (var m in menus)
             {
-                if (String.Compare(m.ClassName, typeName, true) == 0)
+                if (string.Compare(m.ClassName, typeName, StringComparison.OrdinalIgnoreCase) == 0)
                     return m;
                 if (m.SubMenus.Count > 0)
                     return FindCommandMenu(m.SubMenus, typeName);
@@ -189,20 +174,5 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             _commandBarAccessor.Delete();
         }
 
-        //private ObjectContextEventHandler _foo;
-        //public event ObjectContextEventHandler ObjectContextChanged
-        //{
-        //    add
-        //    {
-        //        if (_foo == null || !_foo.GetInvocationList().Contains(value))
-        //        {
-        //            _foo += value;
-        //        }
-        //    }
-        //    remove
-        //    {
-        //        _foo -= value;
-        //    }
-        //}
     }
 }

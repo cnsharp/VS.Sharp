@@ -50,12 +50,6 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         public string Tooltip { get; set; }
 
         /// <summary>
-        ///     Office style icon face id
-        /// </summary>
-        [XmlAttribute("faceId")]
-        public int FaceId { get; set; }
-
-        /// <summary>
         ///     Relative position in the parent control,can be minus
         /// </summary>
         /// <remarks>
@@ -64,7 +58,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         [XmlAttribute("position")]
         public int Position
         {
-            get { return _position; }
+            get => _position;
             set
             {
                 if (value >= 0)
@@ -85,7 +79,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             get
             {
                 if (!string.IsNullOrEmpty(Picture) && Plugin != null && Plugin.ResourceManager != null)
-                    return Plugin.ResourceManager.LoadPicture(Picture);
+                    return Plugin.ResourceManager.LoadPictureFromBytes(Picture);
                 return null;
             }
         }
@@ -100,10 +94,20 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             {
                 if (_image == null && !string.IsNullOrEmpty(Picture) && Picture.Trim().Length > 0 && Plugin != null &&
                     Plugin.ResourceManager != null)
-                    _image = Plugin.ResourceManager.LoadBitmap(Picture);
+                {
+                    try
+                    {
+                        _image = Plugin.ResourceManager.LoadBitmap(Picture);
+                    }
+                    catch
+                    {
+                        _image = Plugin.ResourceManager.LoadBitmapFromBytes(Picture);
+                    }
+                }
+
                 return _image;
             }
-            set { _image = value; }
+            set => _image = value;
         }
 
 
@@ -140,8 +144,8 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         [XmlIgnore]
         public ICommand Command
         {
-            get { return _command ?? (_command = LoadInstance(ClassName) as ICommand); }
-            set { _command = value; }
+            get => _command ?? (_command = LoadInstance(ClassName) as ICommand);
+            set => _command = value;
         }
 
         /// <summary>
@@ -157,7 +161,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         [XmlAttribute("arg")]
         public string Arg
         {
-            get { return _arg; }
+            get => _arg;
             set
             {
                 _arg = value;
@@ -175,12 +179,10 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         [XmlIgnore]
         public DependentItems DependentItems
         {
-            get
-            {
-                return  string.IsNullOrWhiteSpace(DependOn)
+            get =>
+                string.IsNullOrWhiteSpace(DependOn)
                     ? _dependentItems
                     : (DependentItems) Enum.Parse(typeof(DependentItems), DependOn);
-            }
             set
             {
                 _dependentItems = value;
@@ -194,7 +196,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         public Func<bool> EnabledFunc { get; set; }
 
         /// <summary>
-        ///     Argument for <see cref="ICommand" /> execution,only be assgined by programming
+        ///     Argument for <see cref="ICommand" /> execution,only be assigned by programming
         /// </summary>
         [XmlIgnore]
         public object Tag { get; set; }
