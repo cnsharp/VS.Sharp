@@ -14,7 +14,6 @@ namespace CnSharp.VisualStudio.Extensions.Util
 
         public static string GetXmlStringFromObject<T>(T obj)
         {
-            string str2;
             using (var stream = new MemoryStream())
             {
                 using (var writer = new XmlTextWriter(stream, Encoding.UTF8))
@@ -23,16 +22,15 @@ namespace CnSharp.VisualStudio.Extensions.Util
                     writer.IndentChar = ' ';
                     writer.Formatting = Formatting.Indented;
                     new XmlSerializer(obj.GetType()).Serialize(writer, obj);
-                    var str = Encoding.UTF8.GetString(stream.ToArray());
-                    var index = str.IndexOf("?>");
+                    var xml = Encoding.UTF8.GetString(stream.ToArray());
+                    var index = xml.IndexOf("?>");
                     if (index > 0)
                     {
-                        str = str.Substring(index + 2);
+                        xml = xml.Substring(index + 2);
                     }
-                    str2 = str.Trim();
+                   return xml.Trim();
                 }
             }
-            return str2;
         }
 
         public static T LoadObjectFromXml<T>(string filename)

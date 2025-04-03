@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net46</TargetFramework>
     <OutputType>Library</OutputType>
     <AssemblyName>VsSharp</AssemblyName>
     <SccProjectName>SAK</SccProjectName>
@@ -37,7 +37,7 @@
     <PackageId>VsSharp</PackageId>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageReleaseNotes>upgrade SDK to V17(2022)</PackageReleaseNotes>
+    <PackageReleaseNotes>upgrade SDK to V15(2017)</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/cnsharp/VS.Sharp.git</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/cnsharp/VS.Sharp</PackageProjectUrl>
@@ -47,7 +47,7 @@
     <Name>
     </Name>
     <Title>VsSharp</Title>
-    <Version>17.0.6</Version>
+    <Version>15.0.0</Version>
     <Company>CnSharp Studio</Company>
     <Description>A VSIX toolkit.</Description>
     <Copyright>Copyright © CnSharp Studio 2015-2025</Copyright>
@@ -61,7 +61,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK">
-      <Version>17.0.31902.203</Version>
+      <Version>15.0.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

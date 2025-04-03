@@ -7,12 +7,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
     [XmlRoot("menu")]
     public class CommandMenu : CommandControl
     {
-        private List<CommandMenu> _subMenus;
-
-        public CommandMenu()
-        {
-            _subMenus = new List<CommandMenu>();
-        }
+        private List<CommandMenu> _subMenus = new List<CommandMenu>();
 
         [XmlElement("menu")]
         public List<CommandMenu> SubMenus
@@ -25,13 +20,13 @@ namespace CnSharp.VisualStudio.Extensions.Commands
                 }
                 return _subMenus;
             }
-            set { _subMenus = value; }
+            set => _subMenus = value;
         }
 
         [XmlAttribute("sgt")]
         public string SubGeneratorType { get; set; }
 
-        protected virtual IEnumerable<CommandMenu> GenerateSubMenus()
+        public virtual IEnumerable<CommandMenu> GenerateSubMenus()
         {
             if (string.IsNullOrEmpty(SubGeneratorType) || SubGeneratorType.Trim().Length == 0)
                 return null;

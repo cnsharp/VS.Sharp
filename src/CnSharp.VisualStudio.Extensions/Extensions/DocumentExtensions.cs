@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using EnvDTE;
-using Microsoft.VisualStudio;
+﻿using EnvDTE;
 
 namespace CnSharp.VisualStudio.Extensions
 {
