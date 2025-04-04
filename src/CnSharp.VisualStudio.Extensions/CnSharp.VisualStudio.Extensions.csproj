@@ -37,7 +37,7 @@
     <PackageId>VsSharp</PackageId>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageReleaseNotes>upgrade SDK to V17(2022)</PackageReleaseNotes>
+    <PackageReleaseNotes>Merge changes from branch 15.</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/cnsharp/VS.Sharp.git</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/cnsharp/VS.Sharp</PackageProjectUrl>
@@ -47,7 +47,7 @@
     <Name>
     </Name>
     <Title>VsSharp</Title>
-    <Version>17.0.6</Version>
+    <Version>17.1.0</Version>
     <Company>CnSharp Studio</Company>
     <Description>A VSIX toolkit.</Description>
     <Copyright>Copyright © CnSharp Studio 2015-2025</Copyright>
