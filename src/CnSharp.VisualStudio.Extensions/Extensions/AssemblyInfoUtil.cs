@@ -14,7 +14,6 @@ namespace CnSharp.VisualStudio.Extensions
         {
             var pai = new ProjectAssemblyInfo(project);
             if (project.IsNetFrameworkProject())
-            {
                 if (string.IsNullOrEmpty(pai.Company) || string.IsNullOrEmpty(pai.Product) ||
                     string.IsNullOrEmpty(pai.Copyright))
                 {
@@ -26,6 +25,7 @@ namespace CnSharp.VisualStudio.Extensions
                         pai.Merge(commonInfo);
                         return pai;
                     }
+
                     //search common assembly info files
                     var slnDir = Path.GetDirectoryName(project.DTE.Solution.FullName);
                     var assemblyInfoFiles = Directory.GetFiles(slnDir, "*AssemblyInfo.*", SearchOption.AllDirectories);
@@ -39,7 +39,7 @@ namespace CnSharp.VisualStudio.Extensions
                         return pai;
                     }
                 }
-            }
+
             return pai;
         }
 
@@ -52,31 +52,30 @@ namespace CnSharp.VisualStudio.Extensions
         }
 
 
-
-        public static void Save(this ProjectAssemblyInfo assemblyInfo,bool includeCommonInfo = false)
+        public static void Save(this ProjectAssemblyInfo assemblyInfo, bool includeCommonInfo = false)
         {
             var assemblyInfoFile = assemblyInfo.Project.GetAssemblyInfoFileName();
             var manager = AssemblyInfoFileManagerFactory.Get(assemblyInfo.Project);
-            manager.Save(assemblyInfo,assemblyInfoFile);
+            manager.Save(assemblyInfo, assemblyInfoFile);
 
             if (!includeCommonInfo) return;
 
             var commonInfoFile = assemblyInfo.Project.GetCommonAssemblyInfoFilePath();
-            if(commonInfoFile != null)
-                Save(assemblyInfo,commonInfoFile);
+            if (commonInfoFile != null)
+                Save(assemblyInfo, commonInfoFile);
         }
 
-        public static void Save(this CommonAssemblyInfo assemblyInfo,string fileName)
+        public static void Save(this CommonAssemblyInfo assemblyInfo, string fileName)
         {
             var manager = AssemblyInfoFileManagerFactory.Get(fileName);
-            manager.Save(assemblyInfo,fileName);
+            manager.Save(assemblyInfo, fileName);
         }
 
         public static void RemoveCommonAssemblyInfoAnnotations(this Project project, params string[] skipProperties)
         {
             var assemblyInfoFile = project.GetAssemblyInfoFileName();
             var manager = AssemblyInfoFileManagerFactory.Get(project);
-            manager.RemoveCommonInfo(assemblyInfoFile,skipProperties);
+            manager.RemoveCommonInfo(assemblyInfoFile, skipProperties);
         }
 
         public static bool HasAssemblyInfo(this Project project)
@@ -92,31 +91,18 @@ namespace CnSharp.VisualStudio.Extensions
             }
         }
 
-
         public static string GetAssemblyInfoFileName(this Project project)
         {
-            string prjDir = Path.GetDirectoryName(project.FileName);
+            var prjDir = Path.GetDirectoryName(project.FileName);
             var ext = project.GetCodeFileExtension();
-            string assemblyInfoFile = prjDir + "\\Properties\\AssemblyInfo" + ext;
+            var assemblyInfoFile = prjDir + "\\Properties\\AssemblyInfo" + ext;
+            if (!File.Exists(assemblyInfoFile)) assemblyInfoFile = prjDir + "\\AssemblyInfo" + ext;
+            if (!File.Exists(assemblyInfoFile)) assemblyInfoFile = prjDir + "\\My Project\\AssemblyInfo" + ext;
+            if (!File.Exists(assemblyInfoFile)) assemblyInfoFile = prjDir + "\\AssemblyInfo" + ext;
             if (!File.Exists(assemblyInfoFile))
-            {
-                assemblyInfoFile = prjDir + "\\AssemblyInfo" + ext;
-            }
-            if (!File.Exists(assemblyInfoFile))
-            {
-                assemblyInfoFile = prjDir + "\\My Project\\AssemblyInfo" + ext;
-            }
-            if (!File.Exists(assemblyInfoFile))
-            {
-                assemblyInfoFile = prjDir + "\\AssemblyInfo" + ext;
-            }
-            if (!File.Exists(assemblyInfoFile))
-            {
                 throw new FileNotFoundException("AssemblyInfo file not found in this project.");
-            }
             return assemblyInfoFile;
         }
-
     }
 
 
@@ -132,8 +118,9 @@ namespace CnSharp.VisualStudio.Extensions
 
                 case CodeModelLanguageConstants.vsCMLanguageVB:
 
-                   return new AssemblyInfoVbManager();
+                    return new AssemblyInfoVbManager();
             }
+
             throw new NotSupportedException();
             //var ext = Path.GetExtension(file).TrimStart('.').ToLower();
             //return ext == "cs" ? (AssemblyInfoFileManager) new AssemblyInfoCsManager() : new AssemblyInfoVbManager();
@@ -144,36 +131,38 @@ namespace CnSharp.VisualStudio.Extensions
             var ext = Path.GetExtension(file).TrimStart('.').ToLower();
             switch (ext)
             {
-                case "cs":return new AssemblyInfoCsManager();
+                case "cs": return new AssemblyInfoCsManager();
                 case "vb": return new AssemblyInfoVbManager();
             }
+
             throw new NotSupportedException();
         }
     }
 
     public abstract class AssemblyInfoFileManager
     {
+        protected string CommonInfoAnnotationTempalte;
+        protected string CommonInfoUsingTemplate;
         protected string FindRegexPattern;
         protected string ReadRegexPattern;
         protected string WriteRegexPattern;
-        protected string CommonInfoUsingTemplate;
-        protected string CommonInfoAnnotationTempalte;
-        public string FolderName { get;protected set; }
+        public string FolderName { get; protected set; }
 
-        public  ProjectAssemblyInfo Read(string file)
+        public ProjectAssemblyInfo Read(string file)
         {
             var assemblyInfo = ReadFile(file);
             if (string.IsNullOrEmpty(assemblyInfo))
                 throw new FileLoadException("AssemblyInfo file content is empty.");
             assemblyInfo = Regex.Replace(assemblyInfo, "['|//].*", "");
-            string fileVersion = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyFileVersion");
+            var fileVersion = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyFileVersion");
 
-            string version = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyVersion");
-            string productName = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyProduct");
-            string companyName = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyCompany");
-            string title = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyTitle");
-            string description = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyDescription");
-            string copyright = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyCopyright");
+            var version = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyVersion");
+            var productName = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyProduct");
+            var companyName = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyCompany");
+            var title = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyTitle");
+            var description = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyDescription");
+            var copyright = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyCopyright");
+            var informationalVersion = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyInformationalVersion");
             return new ProjectAssemblyInfo
             {
                 FileVersion = fileVersion,
@@ -182,7 +171,8 @@ namespace CnSharp.VisualStudio.Extensions
                 Company = companyName,
                 Title = title,
                 Description = description,
-                Copyright = copyright
+                Copyright = copyright,
+                InformationalVersion = informationalVersion
             };
         }
 
@@ -198,13 +188,15 @@ namespace CnSharp.VisualStudio.Extensions
             var companyName = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyCompany");
             var copyright = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyCopyright");
             var trademark = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyTrademark");
+            var informationalVersion = GetAssemblyAnnotationValue(assemblyInfo, "AssemblyInformationalVersion");
             return new CommonAssemblyInfo
             {
                 Version = version,
                 Product = productName,
                 Company = companyName,
                 Copyright = copyright,
-                Trademark = trademark
+                Trademark = trademark,
+                InformationalVersion = informationalVersion
             };
         }
 
@@ -217,7 +209,7 @@ namespace CnSharp.VisualStudio.Extensions
         }
 
 
-        protected  string GetAssemblyAnnotationValue(string assemblyInfo, string attributeName)
+        protected string GetAssemblyAnnotationValue(string assemblyInfo, string attributeName)
         {
             return
                 Regex.Match(assemblyInfo, string.Format(ReadRegexPattern, attributeName)).Groups["content"].Value;
@@ -237,13 +229,14 @@ namespace CnSharp.VisualStudio.Extensions
                 assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyTitle", assemblyInfo.Title);
                 assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyDescription", assemblyInfo.Description);
                 assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyCopyright", assemblyInfo.Copyright);
+                assemblyText = ReplaceAssemblyAnnotation(assemblyText, "AssemblyInformationalVersion",
+                    assemblyInfo.InformationalVersion);
                 sw.Write(assemblyText);
             }
         }
 
         public virtual void Save(CommonAssemblyInfo assemblyInfo, string file)
         {
-
             using (var sw = new StreamWriter(file, false, Encoding.Unicode))
             {
                 var sb = new StringBuilder(CommonInfoUsingTemplate);
@@ -263,33 +256,34 @@ namespace CnSharp.VisualStudio.Extensions
             }
         }
 
-        public void RemoveCommonInfo(string file,params string[] skipProperties)
+        public void RemoveCommonInfo(string file, params string[] skipProperties)
         {
             var assemblyText = ReadFile(file);
             using (var sw = new StreamWriter(file, false, Encoding.Unicode))
             {
-                var props = typeof(CommonAssemblyInfo).GetProperties().Where(p => skipProperties == null || !skipProperties.Contains(p.Name)).Select(p => p.Name).ToList();
-                props.ForEach(p => assemblyText = RemoveAssemblyAnnotation(assemblyText,"Assembly"+ p));
+                var props = typeof(CommonAssemblyInfo).GetProperties()
+                    .Where(p => skipProperties == null || !skipProperties.Contains(p.Name)).Select(p => p.Name)
+                    .ToList();
+                props.ForEach(p => assemblyText = RemoveAssemblyAnnotation(assemblyText, "Assembly" + p));
                 sw.Write(assemblyText);
             }
         }
 
-       protected string ReplaceAssemblyAnnotation(string assemblyText, string attributeName, string value)
+        protected string ReplaceAssemblyAnnotation(string assemblyText, string attributeName, string value)
         {
             //var text = Regex.Replace(assemblyText, $"[^/]\\[assembly:\\s*?{attributeName}\\(\".*?\"\\)\\]",
             //    $"[assembly: {attributeName}(\"{value}\")]\n");
             //return text.Replace("\r[", "\r\n[");//这里有个坑
 
             var text = assemblyText;
-            var matches = Regex.Matches(text, string.Format(WriteRegexPattern,attributeName));
+            var matches = Regex.Matches(text, string.Format(WriteRegexPattern, attributeName));
             foreach (Match m in matches)
-            {
                 if (m.Success)
                 {
                     var newValue = Regex.Replace(m.Value, "\\(\".*?\"\\)", $"(\"{value}\")");
                     text = text.Replace(m.Value, newValue);
                 }
-            }
+
             return text;
         }
 

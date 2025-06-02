@@ -4,6 +4,11 @@ using EnvDTE;
 
 namespace CnSharp.VisualStudio.Extensions.Projects
 {
+    /// <summary>
+    /// Full properties of assembly information.
+    /// convention:The properties of this class are named to match the properties of the AssemblyInfo.cs file but remove the prefix 'Assembly'.
+    /// e.g. AssemblyFileVersion becomes FileVersion, AssemblyTitle becomes Title, AssemblyDescription becomes Description, etc.
+    /// </summary>
     [Serializable]
     public class ProjectAssemblyInfo : CommonAssemblyInfo, IComparable<ProjectAssemblyInfo>
     {
@@ -22,7 +27,7 @@ namespace CnSharp.VisualStudio.Extensions.Projects
         [XmlIgnore]
         public Project Project
         {
-            get { return _project; }
+            get => _project;
             set
             {
                 _project = value;
@@ -33,6 +38,7 @@ namespace CnSharp.VisualStudio.Extensions.Projects
                 Version = _project.GetPropertyValue("AssemblyVersion");
                 FileVersion = _project.GetPropertyValue("AssemblyFileVersion");
                 Product = _project.GetPropertyValue("Product");
+                InformationalVersion = _project.GetPropertyValue("AssemblyInformationalVersion");
             }
         }
 
@@ -46,11 +52,11 @@ namespace CnSharp.VisualStudio.Extensions.Projects
         {
             var result = base.CompareTo(other);
             if (result != 0) return result;
-            if (String.CompareOrdinal(FileVersion, other.FileVersion) != 0)
+            if (string.CompareOrdinal(FileVersion, other.FileVersion) != 0)
                 return -1;
-            if (String.CompareOrdinal(Title, other.Title) != 0)
+            if (string.CompareOrdinal(Title, other.Title) != 0)
                 return -1;
-            if (String.CompareOrdinal(Description, other.Description) != 0)
+            if (string.CompareOrdinal(Description, other.Description) != 0)
                 return -1;
             return 0;
         }
@@ -65,7 +71,8 @@ namespace CnSharp.VisualStudio.Extensions.Projects
                 FileVersion = FileVersion,
                 Product = ProjectName,
                 Title = Title,
-                Version = Version
+                Version = Version,
+                InformationalVersion = InformationalVersion
             };
         }
 
@@ -81,6 +88,8 @@ namespace CnSharp.VisualStudio.Extensions.Projects
                 Trademark = other.Trademark;
             if (!string.IsNullOrEmpty(other.Version) && string.IsNullOrEmpty(Version))
                 Version = other.Version;
+            if (!string.IsNullOrEmpty(other.InformationalVersion) && string.IsNullOrEmpty(InformationalVersion))
+                Version = other.InformationalVersion;
         }
     }
 }
