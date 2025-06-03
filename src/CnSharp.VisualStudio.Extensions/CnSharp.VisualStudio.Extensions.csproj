@@ -10,7 +10,6 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-    <NeutralLanguage>en-US</NeutralLanguage>
     <Product>VS.Sharp</Product>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -37,17 +36,16 @@
     <PackageId>VsSharp</PackageId>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Merge changes from branch 15.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add AssemblyInformationalVersion support.</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/cnsharp/VS.Sharp.git</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/cnsharp/VS.Sharp</PackageProjectUrl>
-    <PackageTags>VisualStudio Extensions,Add-in,VSIX</PackageTags>
+    <PackageTags>VisualStudio Extensions Add-in VSIX</PackageTags>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Authors>Bob Chin</Authors>
-    <Name>
-    </Name>
+    <Name></Name>
     <Title>VsSharp</Title>
-    <Version>17.1.0</Version>
+    <Version>17.1.1</Version>
     <Company>CnSharp Studio</Company>
     <Description>A VSIX toolkit.</Description>
     <Copyright>Copyright © CnSharp Studio 2015-2025</Copyright>
@@ -55,9 +53,11 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <PackageIcon>sharp_icon.png</PackageIcon>
+    <PackageIcon>CnSharp-icon-256x256.png</PackageIcon>
     <PackageReadmeFile>
     </PackageReadmeFile>
+    <PackageIconUrl />
+    <PackageLicenseUrl />
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK">
@@ -68,7 +68,7 @@
     <None Remove="CnSharp.VisualStudio.Extensions.csproj.DotSettings" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="sharp_icon.png">
+    <None Update="CnSharp-icon-256x256.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
