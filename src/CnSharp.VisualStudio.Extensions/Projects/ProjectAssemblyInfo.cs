@@ -31,14 +31,14 @@ namespace CnSharp.VisualStudio.Extensions.Projects
             set
             {
                 _project = value;
-                Title = _project.GetPropertyValue("Title");
+                Title = _project.GetPropertyValue("AssemblyName");
                 Company = _project.GetPropertyValue("Company");
                 Description = _project.GetPropertyValue("Description");
                 Copyright = _project.GetPropertyValue("Copyright");
                 Version = _project.GetPropertyValue("AssemblyVersion");
-                FileVersion = _project.GetPropertyValue("AssemblyFileVersion");
+                FileVersion = _project.GetPropertyValue("FileVersion");
                 Product = _project.GetPropertyValue("Product");
-                InformationalVersion = _project.GetPropertyValue("AssemblyInformationalVersion");
+                InformationalVersion = _project.GetPropertyValue("Version");
             }
         }
 
