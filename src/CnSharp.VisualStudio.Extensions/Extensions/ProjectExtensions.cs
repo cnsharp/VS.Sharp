@@ -1,21 +1,24 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Xml;
 using CnSharp.VisualStudio.Extensions.Projects;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Xml;
 using VSLangProj;
 using VSLangProj80;
 using Constants = EnvDTE.Constants;
+using Project = EnvDTE.Project;
+using ProjectItem = EnvDTE.ProjectItem;
 
 namespace CnSharp.VisualStudio.Extensions
 {
     /// <summary>
-    ///     extensions of <see cref="Project" />
+    ///     extensions of <see cref="EnvDTE.Project" />
     /// </summary>
     public static class ProjectExtensions
     {
@@ -161,7 +164,7 @@ namespace CnSharp.VisualStudio.Extensions
             var projectItems = project.ProjectItems;
             if (paths?.Any() == true)
             {
-                foreach (var p in paths) 
+                foreach (var p in paths)
                     projectItems = projectItems.Item(p).ProjectItems;
             }
             return projectItems.AddFromFile(file);
@@ -202,7 +205,7 @@ namespace CnSharp.VisualStudio.Extensions
                     projectItems = projectItems.Item(p).ProjectItems;
             }
             var item = projectItems.Item(file);
-            if(item == null) return;
+            if (item == null) return;
             project.SetItemAttribute(item, key, value);
         }
 
@@ -230,7 +233,7 @@ namespace CnSharp.VisualStudio.Extensions
         public static ProjectItem AddFolder(this Project project, string newFolder)
         {
             var projectItems = project.ProjectItems;
-           return projectItems.AddFolder(newFolder);
+            return projectItems.AddFolder(newFolder);
         }
 
         public static ProjectItem AddFolder(this Project project, List<string> paths, string newFolder)
@@ -262,7 +265,7 @@ namespace CnSharp.VisualStudio.Extensions
                     projectItems = projectItems.Item(p).ProjectItems;
             }
             var item = projectItems.Item(itemName);
-            if (item != null)    
+            if (item != null)
                 item.Remove();
         }
 
@@ -309,7 +312,6 @@ namespace CnSharp.VisualStudio.Extensions
         {
             return Path.GetExtension(project.GetFileName()).Replace("proj", string.Empty);
         }
-
 
         public static void SaveCommonAssemblyInfo(this Project project, CommonAssemblyInfo assemblyInfo)
         {
@@ -398,94 +400,96 @@ namespace CnSharp.VisualStudio.Extensions
         {
             var ppp = new PackageProjectProperties();
             var properties = typeof(PackageProjectProperties).GetProperties().ToList();
-            var doc = new XmlDocument();
-            doc.Load(project.FileName);
+            AssignByReflection(project, properties, ppp);
+            return ppp;
+        }
 
+        private static void AssignByReflection(Project project, List<PropertyInfo> properties, object target)
+        {
             foreach (var p in properties)
+            {
                 try
                 {
-                    var node = doc.SelectSingleNode("/Project/PropertyGroup/" + p.Name);
-                    if (node != null)
+                    var val = project.Properties.Item(p.Name).Value;
+                    if (val != null)
                     {
                         if (p.PropertyType == typeof(bool))
-                            p.SetValue(ppp, Convert.ToBoolean(node.InnerText), null);
+                            p.SetValue(target, Convert.ToBoolean(val), null);
                         else
-                            p.SetValue(ppp, node.InnerText, null);
+                            p.SetValue(target, val.ToString(), null);
                     }
                 }
                 catch (Exception ex)
                 {
                     // ignored
                 }
-
-            return ppp;
+            }
         }
 
         public static Projects.ProjectProperties GetProjectProperties(this Project project)
         {
             var pp = new Projects.ProjectProperties();
             var properties = typeof(Projects.ProjectProperties).GetProperties().ToList();
-            var doc = new XmlDocument();
-            doc.Load(project.FileName);
-
-            foreach (var p in properties)
-                try
-                {
-                    var node = doc.SelectSingleNode("/Project/PropertyGroup/" + p.Name);
-                    if (node != null)
-                    {
-                        if (p.PropertyType == typeof(bool))
-                            p.SetValue(pp, Convert.ToBoolean(node.InnerText), null);
-                        else
-                            p.SetValue(pp, node.InnerText, null);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // ignored
-                }
-
+            AssignByReflection(project, properties, pp);
             return pp;
         }
 
-        public static void SavePackageProjectProperties(this Project project, PackageProjectProperties ppp,
-            params string[] skipProperties)
+        /// <summary>
+        /// Saves the specified package project properties to the given project, excluding any properties specified to
+        /// be skipped.
+        /// </summary>
+        /// <remarks>This method iterates through the properties of the <see
+        /// cref="PackageProjectProperties"/> object and attempts to save their values to the corresponding properties
+        /// in the <paramref name="project"/>. If a property cannot be saved (e.g., current version of VS SDK not supported), its name is
+        /// added to the returned list of failures.</remarks>
+        /// <param name="project">The project to which the properties will be saved.</param>
+        /// <param name="ppp">An instance of <see cref="PackageProjectProperties"/> containing the properties to save.</param>
+        /// <param name="skipProperties">An optional array of property names to exclude from being saved. If null or empty, all properties in
+        /// <paramref name="ppp"/> will be processed.</param>
+        /// <returns>A list of property names that failed to save. The list will be empty if all properties were successfully
+        /// saved.</returns>
+        public static List<string> SavePackageProjectProperties(this Project project, PackageProjectProperties ppp, params string[] skipProperties)
         {
             var properties = typeof(PackageProjectProperties).GetProperties().ToList();
             if (skipProperties != null)
                 properties = properties.Where(p => !skipProperties.Contains(p.Name)).ToList();
 
-            var doc = new XmlDocument();
-            doc.Load(project.FileName);
+            var failures = new List<string>();
             foreach (var p in properties)
+            {
                 try
                 {
                     var v = p.GetValue(ppp, null);
                     var val = p.PropertyType == typeof(bool)
-                        ? v != null && Convert.ToBoolean(v)
-                        : v ?? string.Empty;
-                    var node = doc.SelectSingleNode("/Project/PropertyGroup/" + p.Name);
-                    if (node != null)
-                    {
-                        node.InnerText = val.ToString();
-                    }
-                    else
-                    {
-                        var propertyGroup = doc.SelectSingleNode("/Project/PropertyGroup");
-                        if (propertyGroup != null && val != null && !string.IsNullOrEmpty(val.ToString()))
-                        {
-                            var newNode = doc.CreateElement(p.Name);
-                            newNode.InnerText = val.ToString();
-                            propertyGroup.AppendChild(newNode);
-                        }
-                    }
+                        ? (v != null && Convert.ToBoolean(v)).ToString()
+                        : v?.ToString() ?? string.Empty;
+                    project.Properties.Item(p.Name).Value = val;
                 }
                 catch (Exception ex)
                 {
+                    failures.Add(p.Name);
                     // ignored
                 }
+            }
 
-            doc.Save(project.FileName);
+            return failures;
+        }
+
+        public static string GetGitDirectory(this Project project)
+        {
+            var projectDirectory = Path.GetDirectoryName(project.FullName);
+            var directory = new DirectoryInfo(projectDirectory);
+            while (directory != null)
+            {
+                var gitPath = Path.Combine(directory.FullName, ".git");
+                if (Directory.Exists(gitPath))
+                {
+                    return gitPath;
+                }
+                directory = directory.Parent;
+            }
+
+            return null;
         }
     }
 }
