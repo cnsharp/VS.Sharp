@@ -123,16 +123,17 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         private IEnumerable<string> GetMatchedMenus(IEnumerable<CommandMenu> menus, DependentItems items)
         {
+            var menuIds = new List<string>();
             foreach (var menu in menus)
             {
-                foreach (var sub in menu.SubMenus)
+                if (menu.SubMenus?.Any() == true)
                 {
-                    if (sub.DependentItems.HasFlag(items))
-                        yield return sub.Id;
+                    menuIds.AddRange(GetMatchedMenus(menu.SubMenus, items));
                 }
                 if (menu.DependentItems.HasFlag(items))
-                    yield return menu.Id;
+                    menuIds.Add(menu.Id);
             }
+            return menuIds;
         }
 
         public CommandControl FindCommandControl(Type type)
