@@ -44,6 +44,12 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         public string Text { get; set; }
 
         /// <summary>
+        ///     ShortcutText
+        /// </summary>
+        [XmlAttribute("shortcutText")]
+        public string ShortcutText { get; set; }
+
+        /// <summary>
         ///     Tooltip text
         /// </summary>
         [XmlAttribute("tooltip")]
