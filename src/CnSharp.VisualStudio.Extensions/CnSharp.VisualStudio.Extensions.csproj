@@ -10,7 +10,6 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-    <NeutralLanguage>en-US</NeutralLanguage>
     <Product>VS.Sharp</Product>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -37,7 +36,7 @@
     <PackageId>VsSharp</PackageId>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageReleaseNotes>upgrade SDK to V15(2017)</PackageReleaseNotes>
+    <PackageReleaseNotes>Bug fix</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/cnsharp/VS.Sharp.git</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/cnsharp/VS.Sharp</PackageProjectUrl>
@@ -47,7 +46,7 @@
     <Name>
     </Name>
     <Title>VsSharp</Title>
-    <Version>15.0.0</Version>
+    <Version>15.0.1</Version>
     <Company>CnSharp Studio</Company>
     <Description>A VSIX toolkit.</Description>
     <Copyright>Copyright © CnSharp Studio 2015-2025</Copyright>
@@ -55,9 +54,11 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <PackageIcon>sharp_icon.png</PackageIcon>
+    <PackageIcon>logo-256x256.png</PackageIcon>
     <PackageReadmeFile>
     </PackageReadmeFile>
+    <PackageIconUrl />
+    <PackageLicenseUrl />
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK">
@@ -68,6 +69,10 @@
     <None Remove="CnSharp.VisualStudio.Extensions.csproj.DotSettings" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\assets\logo-256x256.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="sharp_icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
