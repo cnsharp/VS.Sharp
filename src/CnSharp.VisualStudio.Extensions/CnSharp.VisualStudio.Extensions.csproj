@@ -53,7 +53,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <PackageIcon>CnSharp-icon-256x256.png</PackageIcon>
+    <PackageIcon>logo-256x256.png</PackageIcon>
     <PackageReadmeFile>
     </PackageReadmeFile>
     <PackageIconUrl />
@@ -68,7 +68,7 @@
     <None Remove="CnSharp.VisualStudio.Extensions.csproj.DotSettings" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="CnSharp-icon-256x256.png">
+    <None Include="..\..\assets\logo-256x256.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
