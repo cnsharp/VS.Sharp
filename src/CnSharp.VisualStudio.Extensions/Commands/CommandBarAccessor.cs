@@ -211,7 +211,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         {
             const string menuBar = "MenuBar";
 
-            if (string.IsNullOrEmpty(menu.AttachTo) || menu.AttachTo.Trim().Length == 0)
+            if (string.IsNullOrWhiteSpace(menu.AttachTo))
             {
                 menu.AttachTo = menuBar;
             }
