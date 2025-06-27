@@ -44,6 +44,12 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         public string Text { get; set; }
 
         /// <summary>
+        ///     ShortcutText
+        /// </summary>
+        [XmlAttribute("shortcutText")]
+        public string ShortcutText { get; set; }
+
+        /// <summary>
         ///     Tooltip text
         /// </summary>
         [XmlAttribute("tooltip")]
@@ -172,21 +178,21 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         /// <summary>
         ///     <see cref="DependentItems" /> name for making the control  enabled or disabled
         /// </summary>
-        [XmlAttribute("dependOn")]
-        public string DependOn { get; set; }
+        [XmlAttribute("dependsOn")]
+        public string DependsOn { get; set; }
 
         private DependentItems _dependentItems = DependentItems.None;
         [XmlIgnore]
         public DependentItems DependentItems
         {
             get =>
-                string.IsNullOrWhiteSpace(DependOn)
+                string.IsNullOrWhiteSpace(DependsOn)
                     ? _dependentItems
-                    : (DependentItems) Enum.Parse(typeof(DependentItems), DependOn);
+                    : (DependentItems) Enum.Parse(typeof(DependentItems), DependsOn);
             set
             {
                 _dependentItems = value;
-                DependOn = _dependentItems.ToString();
+                DependsOn = _dependentItems.ToString();
             }
         }
 

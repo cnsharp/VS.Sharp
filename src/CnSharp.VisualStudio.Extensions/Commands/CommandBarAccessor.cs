@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using EnvDTE;
 using Microsoft.VisualStudio.CommandBars;
@@ -21,9 +22,22 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         {
             //control.Plugin = Plugin;
             AddControl(control, false);
-            if(!_commandControls.Contains(control))
-             _commandControls.Add(control);
+            RegisterCommandControl(control);
         }
+
+        private void RegisterCommandControl(CommandControl control)
+        {
+            if (!_commandControls.Contains(control))
+                _commandControls.Add(control);
+            if (control is CommandMenu commandMenu)
+            {
+                if (commandMenu.SubMenus?.Any() == true)
+                {
+                    commandMenu.SubMenus.ForEach(RegisterCommandControl);
+                }
+            }
+        }
+
 
         private CommandBarControl AddControl(CommandControl control, bool keepPosition)
         {
@@ -106,12 +120,13 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         private CommandBarButton AddCommandBarButton(CommandControl menu, bool keepPosition)
         {
-
             var bar = ResetCommandBar(menu, MsoControlType.msoControlButton, keepPosition);
             var btn = (CommandBarButton)bar;
-
-
+                                                                                                                                                
             FormatCommandBarButton(menu, btn);
+            if (!string.IsNullOrWhiteSpace(menu.ShortcutText))
+                btn.ShortcutText = menu.ShortcutText;
+
             _commandBarControlDict.Add(menu.Id, btn);
             return btn;
         }
@@ -229,6 +244,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             var bar = (CommandBarButton)parentMenu.Controls.Add(
                 MsoControlType.msoControlButton, Missing.Value, Missing.Value, Missing.Value, true);
             FormatCommandBarButton(menu, bar);
+            bar.Tag = menu.Id;
             _commandBarControlDict.Add(menu.Id, bar);
 
             if (menu.SubMenus != null && menu.SubMenus.Count > 0)
