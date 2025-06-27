@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using EnvDTE;
 using Microsoft.VisualStudio.CommandBars;
-using stdole;
 
 namespace CnSharp.VisualStudio.Extensions.Commands
 {
@@ -13,7 +11,8 @@ namespace CnSharp.VisualStudio.Extensions.Commands
     {
         private static readonly Host Host = Host.Instance;
         private readonly List<Command> _commands = new List<Command>();
-        private readonly List<CommandBarControl> _commandBarControls = new List<CommandBarControl>();
+        private readonly Dictionary<string, CommandBarControl> _commandBarControlDict =
+            new Dictionary<string, CommandBarControl>();
         private readonly List<CommandControl> _commandControls = new List<CommandControl>();
 
         //public Plugin Plugin { get; set; }
@@ -49,14 +48,38 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         public void EnableControls(IEnumerable<string> ids, bool enabled)
         {
-            var controls = _commandBarControls.Where(c => ids.Contains(c.Tag));
-            foreach (var control in controls)
+            foreach (var id in ids)
             {
-                var cc = _commandControls.Find(m => m.Id == control.Tag);
+                CommandBarControl control;
+                var cc = _commandControls.Find(m => m.Id == id);
+                if (IsDisposed(_commandBarControlDict[id]))
+                {
+                    _commandBarControlDict.Remove(id);
+                    control = AddControl(cc, true);
+                }
+                else
+                {
+                    control = _commandBarControlDict[id];
+                }
+
+                var controlEnabled = enabled;
                 if (cc.EnabledFunc != null)
-                    enabled = enabled && cc.EnabledFunc();
-                control.Enabled = enabled;
-                control.Visible = enabled || cc.UnavailableState != ControlUnavailableState.Invisbile;
+                    controlEnabled = controlEnabled && cc.EnabledFunc();
+                control.Enabled = controlEnabled;
+                control.Visible = controlEnabled || cc.UnavailableState != ControlUnavailableState.Invisbile;
+            }
+        }
+
+        private bool IsDisposed(CommandBarControl control)
+        {
+            try
+            {
+                var temp = control.Enabled;
+                return false;
+            }
+            catch
+            {
+                return true;
             }
         }
 
@@ -67,7 +90,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             {
                 command.Delete();
             }
-            foreach (var c in _commandBarControls)
+            foreach (var c in _commandBarControlDict.Values)
             {
                 try
                 {
@@ -89,8 +112,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
 
             FormatCommandBarButton(menu, btn);
-            _commandBarControls.Add(btn);
-
+            _commandBarControlDict.Add(menu.Id, btn);
             return btn;
         }
 
@@ -107,8 +129,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             //    popup.Picture = pic;
             popup.Visible = true;
             popup.BeginGroup = button.BeginGroup;
-            _commandBarControls.Add(popup);
-
+            _commandBarControlDict.Add(button.Id, popup);
 
             return popup;
         }
@@ -168,7 +189,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
                     RemoveCache(subMenu);
                 }
             }
-            _commandBarControls.RemoveAll(c => c.Tag == control.Id);
+            _commandBarControlDict.Remove(menu.Id);
         }
 
         public CommandBarControl AddMainMenu(CommandMenu menu, bool keepPosition)
@@ -205,10 +226,10 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         private void AddSubMenu(CommandBarPopup parentMenu, CommandMenu menu, Command command = null)
         {
-            CommandBarButton bar = (CommandBarButton)parentMenu.Controls.Add(
+            var bar = (CommandBarButton)parentMenu.Controls.Add(
                 MsoControlType.msoControlButton, Missing.Value, Missing.Value, Missing.Value, true);
             FormatCommandBarButton(menu, bar);
-            _commandBarControls.Add(bar);
+            _commandBarControlDict.Add(menu.Id, bar);
 
             if (menu.SubMenus != null && menu.SubMenus.Count > 0)
             {
@@ -222,13 +243,12 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             //Command cmd = AddCommond(button);
             if (keepPosition)
                 button.LoadSubMenus();
-            CommandBarControl cmdControl = null;
+            CommandBarControl cmdControl;
             if (button.SubMenus != null && button.SubMenus.Count > 0)
             {
                 var popup = AddCommandBarButtonPop(button, keepPosition);
                 button.SubMenus.ForEach(sub => AddSubMenu(popup, sub));
                 cmdControl = popup;
-
             }
             else
             {
@@ -244,7 +264,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         private void FormatCommandBarButton(CommandControl control, CommandBarButton btn)
         {
             btn.Caption = control.Text;
-            StdPicture pic = control.StdPicture;
+            var pic = control.StdPicture;
             if (pic != null)
                 btn.Picture = pic;
             btn.Visible = true;

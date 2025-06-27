@@ -94,7 +94,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         public void Reset(Type type)
         {
-            CommandControl control = FindCommandControl(type);
+            var control = FindCommandControl(type);
             if (control == null)
                 return;
             _commandBarAccessor.ResetControl(control);
