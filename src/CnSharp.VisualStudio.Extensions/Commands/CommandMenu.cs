@@ -28,7 +28,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
 
         public virtual IEnumerable<CommandMenu> GenerateSubMenus()
         {
-            if (string.IsNullOrEmpty(SubGeneratorType) || SubGeneratorType.Trim().Length == 0)
+            if (string.IsNullOrWhiteSpace(SubGeneratorType))
                 return null;
             var gen = LoadInstance(SubGeneratorType) as ICommandMenuGenerator;
             if (gen == null)

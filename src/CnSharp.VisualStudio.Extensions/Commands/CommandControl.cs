@@ -188,7 +188,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
             get =>
                 string.IsNullOrWhiteSpace(DependsOn)
                     ? _dependentItems
-                    : (DependentItems) Enum.Parse(typeof(DependentItems), DependsOn);
+                    : (DependentItems)Enum.Parse(typeof(DependentItems), DependsOn);
             set
             {
                 _dependentItems = value;
@@ -255,7 +255,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
                     var assembly = Assembly.Load(assemblyName);
                     return assembly.CreateInstance(arr[0]);
                 }
-                catch
+                catch(Exception e)
                 {
                     var file = Path.Combine(Plugin.Location, assemblyName + ".dll");
                     if (File.Exists(file))
@@ -274,7 +274,7 @@ namespace CnSharp.VisualStudio.Extensions.Commands
         {
             if (_form != null && !_form.IsDisposed)
                 return _form;
-            _form = (Form) LoadInstance(ClassName);
+            _form = (Form)LoadInstance(ClassName);
             return _form;
         }
     }
