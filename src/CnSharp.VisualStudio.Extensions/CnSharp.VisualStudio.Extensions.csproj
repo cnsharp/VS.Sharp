@@ -54,8 +54,7 @@
     <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <PackageIcon>logo-256x256.png</PackageIcon>
-    <PackageReadmeFile>
-    </PackageReadmeFile>
+    <PackageReadmeFile />
     <PackageIconUrl />
     <PackageLicenseUrl />
   </PropertyGroup>
@@ -63,9 +62,6 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK">
       <Version>17.0.31902.203</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="CnSharp.VisualStudio.Extensions.csproj.DotSettings" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\assets\logo-256x256.png">
