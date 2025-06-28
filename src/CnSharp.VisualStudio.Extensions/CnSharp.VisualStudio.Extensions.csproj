@@ -36,16 +36,16 @@
     <PackageId>VsSharp</PackageId>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Add AssemblyInformationalVersion support.</PackageReleaseNotes>
+    <PackageReleaseNotes>Enhance robustness when CommandBarControl is disposed</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/cnsharp/VS.Sharp.git</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/cnsharp/VS.Sharp</PackageProjectUrl>
     <PackageTags>VisualStudio Extensions Add-in VSIX</PackageTags>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Authors>Bob Chin</Authors>
+    <Authors>CnSharp</Authors>
     <Name></Name>
     <Title>VsSharp</Title>
-    <Version>17.1.1</Version>
+    <Version>17.2.0</Version>
     <Company>CnSharp Studio</Company>
     <Description>A VSIX toolkit.</Description>
     <Copyright>Copyright © CnSharp Studio 2015-2025</Copyright>
